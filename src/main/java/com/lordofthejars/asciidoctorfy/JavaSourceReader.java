@@ -20,6 +20,16 @@ public class JavaSourceReader {
 	private Java7Parser java7Parser = new Java7Parser();
 	private StringBuilder content = new StringBuilder();
 	
+	private File baseDir = new File(".");
+	
+	public JavaSourceReader() {
+	    super();
+	}
+	
+	public JavaSourceReader(File baseDir){
+	    this.baseDir = baseDir;
+	}
+	
 	public String generateDoc(InputStream javaFile) throws ParseException,
 			IOException {
 
@@ -84,7 +94,7 @@ public class JavaSourceReader {
 		attributes.put("class", "");
 
 		InputStream fileInputStream = new FileInputStream(
-				new File(fileName));
+				new File(this.baseDir, fileName));
 
 		appendSourceCode(attributes, fileInputStream);
 	}
@@ -101,7 +111,8 @@ public class JavaSourceReader {
 
 	private void includeJavaMethod(String fileName)
 			throws FileNotFoundException, IOException {
-		final int methodSeparator = fileName.lastIndexOf("#");
+		
+	    final int methodSeparator = fileName.lastIndexOf("#");
 		String classLocation = fileName.substring(0,
 				methodSeparator);
 		final int extensionSeparator = fileName
@@ -113,7 +124,7 @@ public class JavaSourceReader {
 		attributes.put("method", method);
 
 		InputStream fileInputStream = new FileInputStream(
-				new File(classLocation + ".java"));
+				new File(baseDir, classLocation + ".java"));
 
 		appendSourceCode(attributes, fileInputStream);
 	}

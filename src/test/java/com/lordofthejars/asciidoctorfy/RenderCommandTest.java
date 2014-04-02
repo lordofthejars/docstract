@@ -1,5 +1,6 @@
 package com.lordofthejars.asciidoctorfy;
 
+import static com.lordofthejars.asciidoctorfy.IOUtils.NEW_LINE;
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 
@@ -17,27 +18,27 @@ import com.lordofthejars.asciidoctorfy.RenderCommand;
 
 public class RenderCommandTest {
 
-	private static final String EXPECTED_OUTPUT = "My name is *Alex*.\r\n" + 
-			"I am 33 years _old_.\r\n" + 
-			"\r\n" + 
-			"Jump Jump +!!+.\r\n" + 
-			"\r\n" + 
-			"[source, java]\r\n" + 
-			"----\r\n" + 
-			"public interface MyInterface {\r\n" + 
-			"\r\n" + 
-			"	void loginSuccess(Object hash);\r\n" + 
-			"	void loginSuccess();\r\n" + 
-			"	void foo(int number, Object block);\r\n" + 
-			"	\r\n" + 
-			"}\r\n" + 
-			"----\r\n" + 
-			"\r\n" + 
-			"[source, java]\r\n" + 
-			"----\r\n" + 
-			"public String getId() {\r\n" + 
-			"	return id;\r\n" + 
-			"}\r\n" + 
+	private static final String EXPECTED_OUTPUT = "My name is *Alex*." +NEW_LINE+ 
+			"I am 33 years _old_." + NEW_LINE + 
+			NEW_LINE + 
+			"Jump Jump +!!+." + NEW_LINE + 
+			NEW_LINE + 
+			"[source, java]" + NEW_LINE + 
+			"----" + NEW_LINE + 
+			"public interface MyInterface {" + NEW_LINE + 
+			NEW_LINE + 
+			"	void loginSuccess(Object hash);" + NEW_LINE + 
+			"	void loginSuccess();" + NEW_LINE + 
+			"	void foo(int number, Object block);" + NEW_LINE + 
+			"	" + NEW_LINE + 
+			"}" + NEW_LINE + 
+			"----" + NEW_LINE + 
+			NEW_LINE + 
+			"[source, java]" + NEW_LINE + 
+			"----" + NEW_LINE + 
+			"public String getId() {" + NEW_LINE+ 
+			"	return id;" + NEW_LINE + 
+			"}" + NEW_LINE + 
 			"----";
 	
 	@Rule
@@ -49,7 +50,7 @@ public class RenderCommandTest {
 		RenderCommand renderCommand = new RenderCommand();
 		
 		File outputFile = temporaryFolder.newFile("output.adoc");
-		renderCommand.render(new File("src/test/java/com/lordofthejars/asciidoctorfy/MM.java"), outputFile);
+		renderCommand.render(new File("src/test/java/com/lordofthejars/asciidoctorfy/MM.java"), outputFile, new File("."));
 		
 		
 		assertThat(readFull(outputFile).trim(), is(EXPECTED_OUTPUT));

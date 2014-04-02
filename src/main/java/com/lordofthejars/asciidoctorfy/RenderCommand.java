@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import org.tomitribe.crest.api.Command;
+import org.tomitribe.crest.api.Default;
 import org.tomitribe.crest.api.Option;
 import org.tomitribe.crest.api.Required;
 
@@ -14,13 +15,13 @@ import com.github.antlrjavaparser.ParseException;
 
 public class RenderCommand {
 	
-	private JavaSourceReader javaSourceReader = new JavaSourceReader();
 	
 	@Command
-	public void render(@Option("input") @Required File inputSourceFile, @Option("output") @Required File outputSourceFile) {
+	public void render(@Option("input") @Required File inputSourceFile, @Option("output") @Required File outputSourceFile, @Default(".") @Option("baseDir") File baseDir) {
 		
 		try {
 			
+		    JavaSourceReader javaSourceReader = new JavaSourceReader(baseDir);
 			String content = javaSourceReader.generateDoc(new FileInputStream(inputSourceFile));
 			
 			if(content != null) {
