@@ -1,23 +1,28 @@
 package com.lordofthejars.asciidoctorfy;
 
 import static com.lordofthejars.asciidoctorfy.IOUtils.NEW_LINE;
+import static com.lordofthejars.asciidoctorfy.IOUtils.readFull;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 
 import com.github.antlrjavaparser.ParseException;
 
 public class JavaSourceReader {
 
-	private Java7Parser java7Parser = new Java7Parser();
+	private static final String START_COMMENT = "/**";
+    private static final String END_COMMENT = "*/";
+    private static final String COMMENT_SYMBOL = "*";
+    private static final String INCLUDE_JAVA = "include::[\\w/#]+\\.java\\[\\w*\\]";
+    private static final String METHOD_KEY = "method";
+    private static final String METHOD_SEPARATOR = "#";
+    private static final String CLASS_KEY = "class";
+    private Java7Parser java7Parser = new Java7Parser();
 	private StringBuilder content = new StringBuilder();
 	
 	private File baseDir = new File(".");
@@ -91,7 +96,7 @@ public class JavaSourceReader {
 	private void includeJavaClass(String fileName)
 			throws FileNotFoundException, IOException {
 		Map<String, Object> attributes = new HashMap<>();
-		attributes.put("class", "");
+		attributes.put(CLASS_KEY, "");
 
 		InputStream fileInputStream = new FileInputStream(
 				new File(this.baseDir, fileName));
@@ -112,7 +117,7 @@ public class JavaSourceReader {
 	private void includeJavaMethod(String fileName)
 			throws FileNotFoundException, IOException {
 		
-	    final int methodSeparator = fileName.lastIndexOf("#");
+	    final int methodSeparator = fileName.lastIndexOf(METHOD_SEPARATOR);
 		String classLocation = fileName.substring(0,
 				methodSeparator);
 		final int extensionSeparator = fileName
@@ -121,7 +126,7 @@ public class JavaSourceReader {
 				extensionSeparator);
 
 		Map<String, Object> attributes = new HashMap<>();
-		attributes.put("method", method);
+		attributes.put(METHOD_KEY, method);
 
 		InputStream fileInputStream = new FileInputStream(
 				new File(baseDir, classLocation + ".java"));
@@ -130,7 +135,7 @@ public class JavaSourceReader {
 	}
 
 	private boolean isIncludeWithMethod(String fileName) {
-		return fileName.contains("#");
+		return fileName.contains(METHOD_SEPARATOR);
 	}
 
 	private String getFilenamePath(final String asciidocLine) {
@@ -139,35 +144,21 @@ public class JavaSourceReader {
 	}
 
 	private boolean isAJavaIncludeSentence(final String asciidocLine) {
-		return asciidocLine.matches("include::[\\w/#]+\\.java\\[\\w*\\]");
+		return asciidocLine.matches(INCLUDE_JAVA);
 	}
 
 	private boolean isInsideComments(boolean insideCommentBlock,
 			String trimedLine) {
-		return trimedLine.startsWith("*") && insideCommentBlock;
+		return trimedLine.startsWith(COMMENT_SYMBOL) && insideCommentBlock;
 	}
 
 	private boolean isEndingComments(boolean insideCommentBlock,
 			String trimedLine) {
-		return trimedLine.startsWith("*/") && insideCommentBlock;
+		return trimedLine.startsWith(END_COMMENT) && insideCommentBlock;
 	}
 
 	private boolean isStartingComments(String trimedLine) {
-		return trimedLine.startsWith("/**");
-	}
-
-	private static String[] readFull(InputStream inputStream) {
-		List<String> lines = new ArrayList<String>();
-		Scanner scanner = new Scanner(inputStream);
-
-		while (scanner.hasNextLine()) {
-			lines.add(scanner.nextLine());
-		}
-
-		scanner.close();
-
-		return lines.toArray(new String[lines.size()]);
-
+		return trimedLine.startsWith(START_COMMENT);
 	}
 
 }
