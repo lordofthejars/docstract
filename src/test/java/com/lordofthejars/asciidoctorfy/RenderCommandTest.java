@@ -57,6 +57,20 @@ public class RenderCommandTest {
 		
 	}
 	
+	@Test
+    public void should_render_javadoc_with_xml_files_content_as_AsciiDoc_file() throws ParseException, FileNotFoundException, IOException {
+        
+        RenderCommand renderCommand = new RenderCommand();
+        
+        File outputFile = temporaryFolder.newFile("output.adoc");
+        renderCommand.render(new File("src/test/java/com/lordofthejars/asciidoctorfy/Xml.java"), outputFile, new File("."));
+        
+        System.out.println(readFull(outputFile).trim());
+        
+        //assertThat(readFull(outputFile).trim(), is(EXPECTED_OUTPUT));
+        
+    }
+	
 	private String readFull(File file) throws IOException {
 		byte[] content = new byte[(int) file.length()];
 		

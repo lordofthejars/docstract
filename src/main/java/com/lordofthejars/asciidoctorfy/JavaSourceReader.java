@@ -8,157 +8,215 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 import com.github.antlrjavaparser.ParseException;
 
 public class JavaSourceReader {
 
-	private static final String START_COMMENT = "/**";
+    private static final String START_COMMENT = "/**";
     private static final String END_COMMENT = "*/";
     private static final String COMMENT_SYMBOL = "*";
     private static final String INCLUDE_JAVA = "include::[\\w/#]+\\.java\\[\\w*\\]";
+    private static final String INCLUDE_XML = "include::[\\w/]+\\.xml\\[.*\\]";
     private static final String METHOD_KEY = "method";
     private static final String METHOD_SEPARATOR = "#";
     private static final String CLASS_KEY = "class";
     private Java7Parser java7Parser = new Java7Parser();
-	private StringBuilder content = new StringBuilder();
-	
-	private File baseDir = new File(".");
-	
-	public JavaSourceReader() {
-	    super();
-	}
-	
-	public JavaSourceReader(File baseDir){
-	    this.baseDir = baseDir;
-	}
-	
-	public String generateDoc(InputStream javaFile) throws ParseException,
-			IOException {
+    private StringBuilder content = new StringBuilder();
 
-		String[] fullClass = readFull(javaFile);
+    private File baseDir = new File(".");
 
-		boolean insideCommentBlock = false;
-		
-		for (String line : fullClass) {
+    public JavaSourceReader() {
+        super();
+    }
 
-			String trimedLine = line.trim();
+    public JavaSourceReader(File baseDir) {
+        this.baseDir = baseDir;
+    }
 
-			if (isStartingComments(trimedLine)) {
-				insideCommentBlock = true;
-			}
+    public String generateDoc(InputStream javaFile) throws ParseException, IOException {
 
-			if (isEndingComments(insideCommentBlock, trimedLine)) {
-				insideCommentBlock = false;
-			}
+        String[] fullClass = readFull(javaFile);
 
-			if (isInsideComments(insideCommentBlock, trimedLine)) {
-				final String asciidocLine = trimedLine.substring(1).trim();
-				resolveAsciiDocLine(asciidocLine);
-			}
+        boolean insideCommentBlock = false;
 
-		}
+        for (String line : fullClass) {
 
-		return content.toString();
+            String trimedLine = line.trim();
 
-	}
+            if (isStartingComments(trimedLine)) {
+                insideCommentBlock = true;
+            }
 
-	private void resolveAsciiDocLine(final String asciidocLine) throws FileNotFoundException,
-			IOException {
-		if (isAJavaIncludeSentence(asciidocLine)) {
-			resolveJavaInclude(asciidocLine);
-		} else {
-			if (isEmptyCommentLine(asciidocLine)) {
-				content.append(NEW_LINE);
-			} else {
-				content.append(asciidocLine).append(NEW_LINE);
-			}
-		}
-	}
+            if (isEndingComments(insideCommentBlock, trimedLine)) {
+                insideCommentBlock = false;
+            }
 
-	private boolean isEmptyCommentLine(final String asciidocLine) {
-		return asciidocLine.length() == 0;
-	}
+            if (isInsideComments(insideCommentBlock, trimedLine)) {
+                final String asciidocLine = trimedLine.substring(1).trim();
+                resolveAsciiDocLine(asciidocLine);
+            }
 
-	private void resolveJavaInclude(final String asciidocLine) throws FileNotFoundException,
-			IOException {
-		String fileName = getFilenamePath(asciidocLine);
+        }
 
-		if (isIncludeWithMethod(fileName)) {
-			includeJavaMethod(fileName);
-		} else {
-			includeJavaClass(fileName);
-		}
-	}
+        return content.toString();
 
-	private void includeJavaClass(String fileName)
-			throws FileNotFoundException, IOException {
-		Map<String, Object> attributes = new HashMap<>();
-		attributes.put(CLASS_KEY, "");
+    }
 
-		InputStream fileInputStream = new FileInputStream(
-				new File(this.baseDir, fileName));
+    private void resolveAsciiDocLine(final String asciidocLine) throws FileNotFoundException, IOException {
+        if (isAJavaIncludeSentence(asciidocLine)) {
+            resolveJavaInclude(asciidocLine);
+        } else {
+            if (isAnXmlIncludeSentence(asciidocLine)) {
+                String fileName = getFilenamePath(asciidocLine);
 
-		appendSourceCode(attributes, fileInputStream);
-	}
+                if (isIncludeWithXPath(asciidocLine)) {
+                    XPath xpath = XPathFactory.newInstance().newXPath();
+                    String expression = "/servers/name";
+                    InputSource inputSource = new InputSource(new FileInputStream(new File(this.baseDir, fileName)));
+                    try {
+                        NodeList nodes = (NodeList) xpath.evaluate(expression, inputSource, XPathConstants.NODESET);
+                        StringBuilder xmlContent = new StringBuilder();
+                        
+                        for (int i = 0; i < nodes.getLength(); i++) {
+                            xmlContent.append(printNode(nodes.item(i))).append(NEW_LINE);
+                        }
+                        
+                        content.append("[source, xml]").append(NEW_LINE);
+                        content.append("----").append(NEW_LINE);
+                        content.append(xmlContent.toString().trim()).append(NEW_LINE);
+                        content.append("----").append(NEW_LINE);
+                        
+                    } catch (XPathExpressionException e) {
+                        throw new IllegalArgumentException(e);
+                    } catch (TransformerException e) {
+                        throw new IllegalArgumentException(e);
+                    }
+                } else {
+                    content.append("[source, xml]").append(NEW_LINE);
+                    content.append("----").append(NEW_LINE);
+                    content.append(IOUtils.readFull(new File(this.baseDir, fileName)).trim()).append(NEW_LINE);
+                    content.append("----").append(NEW_LINE);
+                }
+            } else {
+                if (isEmptyCommentLine(asciidocLine)) {
+                    content.append(NEW_LINE);
+                } else {
+                    content.append(asciidocLine).append(NEW_LINE);
+                }
+            }
+        }
+    }
 
-	private void appendSourceCode(Map<String, Object> attributes, InputStream fileInputStream)
-			throws IOException {
-		String extractedContent = java7Parser.extract(
-				fileInputStream, attributes);
-		content.append("[source, java]").append(NEW_LINE);
-		content.append("----").append(NEW_LINE);
-		content.append(extractedContent.trim()).append(NEW_LINE);
-		content.append("----").append(NEW_LINE);
-	}
+    private boolean isEmptyCommentLine(final String asciidocLine) {
+        return asciidocLine.length() == 0;
+    }
 
-	private void includeJavaMethod(String fileName)
-			throws FileNotFoundException, IOException {
-		
-	    final int methodSeparator = fileName.lastIndexOf(METHOD_SEPARATOR);
-		String classLocation = fileName.substring(0,
-				methodSeparator);
-		final int extensionSeparator = fileName
-				.lastIndexOf(".");
-		String method = fileName.substring(methodSeparator + 1,
-				extensionSeparator);
+    private void resolveJavaInclude(final String asciidocLine) throws FileNotFoundException, IOException {
+        String fileName = getFilenamePath(asciidocLine);
 
-		Map<String, Object> attributes = new HashMap<>();
-		attributes.put(METHOD_KEY, method);
+        if (isIncludeWithMethod(fileName)) {
+            includeJavaMethod(fileName);
+        } else {
+            includeJavaClass(fileName);
+        }
+    }
 
-		InputStream fileInputStream = new FileInputStream(
-				new File(baseDir, classLocation + ".java"));
+    private void includeJavaClass(String fileName) throws FileNotFoundException, IOException {
+        Map<String, Object> attributes = new HashMap<>();
+        attributes.put(CLASS_KEY, "");
 
-		appendSourceCode(attributes, fileInputStream);
-	}
+        InputStream fileInputStream = new FileInputStream(new File(this.baseDir, fileName));
 
-	private boolean isIncludeWithMethod(String fileName) {
-		return fileName.contains(METHOD_SEPARATOR);
-	}
+        appendSourceCode(attributes, fileInputStream);
+    }
 
-	private String getFilenamePath(final String asciidocLine) {
-		return asciidocLine.substring(9,
-				asciidocLine.lastIndexOf("["));
-	}
+    private void appendSourceCode(Map<String, Object> attributes, InputStream fileInputStream) throws IOException {
+        String extractedContent = java7Parser.extract(fileInputStream, attributes);
+        content.append("[source, java]").append(NEW_LINE);
+        content.append("----").append(NEW_LINE);
+        content.append(extractedContent.trim()).append(NEW_LINE);
+        content.append("----").append(NEW_LINE);
+    }
 
-	private boolean isAJavaIncludeSentence(final String asciidocLine) {
-		return asciidocLine.matches(INCLUDE_JAVA);
-	}
+    private void includeJavaMethod(String fileName) throws FileNotFoundException, IOException {
 
-	private boolean isInsideComments(boolean insideCommentBlock,
-			String trimedLine) {
-		return trimedLine.startsWith(COMMENT_SYMBOL) && insideCommentBlock;
-	}
+        final int methodSeparator = fileName.lastIndexOf(METHOD_SEPARATOR);
+        String classLocation = fileName.substring(0, methodSeparator);
+        final int extensionSeparator = fileName.lastIndexOf(".");
+        String method = fileName.substring(methodSeparator + 1, extensionSeparator);
 
-	private boolean isEndingComments(boolean insideCommentBlock,
-			String trimedLine) {
-		return trimedLine.startsWith(END_COMMENT) && insideCommentBlock;
-	}
+        Map<String, Object> attributes = new HashMap<>();
+        attributes.put(METHOD_KEY, method);
 
-	private boolean isStartingComments(String trimedLine) {
-		return trimedLine.startsWith(START_COMMENT);
-	}
+        InputStream fileInputStream = new FileInputStream(new File(baseDir, classLocation + ".java"));
+
+        appendSourceCode(attributes, fileInputStream);
+    }
+
+    private boolean isIncludeWithXPath(String fileName) {
+        // Inspect if there is content between []
+        return fileName.indexOf("]") - fileName.indexOf("[") > 1;
+    }
+
+    private String printNode(Node rootNode) throws TransformerException {
+        Transformer transformer = TransformerFactory.newInstance().newTransformer();
+        transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+        transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+     
+        StringWriter stringWriter = new StringWriter();
+        StreamResult streamResult = new StreamResult(stringWriter);
+        transformer.transform(new DOMSource(rootNode), streamResult);
+        
+        return stringWriter.toString();
+    }
+
+    private boolean isIncludeWithMethod(String fileName) {
+        return fileName.contains(METHOD_SEPARATOR);
+    }
+
+    private String getFilenamePath(final String asciidocLine) {
+        return asciidocLine.substring(9, asciidocLine.lastIndexOf("["));
+    }
+
+    private boolean isAnXmlIncludeSentence(final String asciidocLine) {
+        return asciidocLine.matches(INCLUDE_XML);
+    }
+
+    private boolean isAJavaIncludeSentence(final String asciidocLine) {
+        return asciidocLine.matches(INCLUDE_JAVA);
+    }
+
+    private boolean isInsideComments(boolean insideCommentBlock, String trimedLine) {
+        return trimedLine.startsWith(COMMENT_SYMBOL) && insideCommentBlock;
+    }
+
+    private boolean isEndingComments(boolean insideCommentBlock, String trimedLine) {
+        return trimedLine.startsWith(END_COMMENT) && insideCommentBlock;
+    }
+
+    private boolean isStartingComments(String trimedLine) {
+        return trimedLine.startsWith(START_COMMENT);
+    }
 
 }
