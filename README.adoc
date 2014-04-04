@@ -1,0 +1,92 @@
+= Asciidoctorfy
+
+== What is it?
+
++Asciidoctorfy+ is an small +java+ project which reads a java source file, extracts the comments between +/**+ and +*/+ sequentially from all over the file and stores them inside an output +AsciiDoc+ file. The idea is not new in fact it is from https://github.com/javaee-samples/javaee7-samples/ developed by _Aslak Knutsen_ but instead of using +Ruby+ and inside +Awestruct+, this project is written in +java+ and it is run from CLI.
+
+Let me show you an example to understand what this application does:
+
+This is a class which contains some comments to be processed.
+
+[source, java]
+----
+package com.lordofthejars.asciidoctorfy;
+
+/**
+ * 
+ * My name is *Alex*.
+ * I am 33 years _old_.
+ * 
+ * Jump Jump +!!+.
+ *
+ * include::src/test/java/com/lordofthejars/asciidoctorfy/MyInterface.java[]
+ *
+ * include::src/test/java/com/lordofthejars/asciidoctorfy/Project#getId().java[]
+ *
+ */
+public class MM {
+
+	/**
+	* It is a *method*.
+	*/
+	@Test
+	public void method() {
+		
+		
+	}
+}
+----
+
+And the output document looks like:
+
+[source, asciidoc]
+----
+My name is *Alex*.
+I am 33 years _old_.
+
+Jump Jump +!!+.
+
+[source, java]
+----
+public interface MyInterface {
+
+	void loginSuccess(Object hash);
+	void loginSuccess();
+	void foo(int number, Object block);
+	
+}
+----
+
+[source, java]
+----
+public String getId() {
+	return id;
+}
+----
+
+It is a *method*.
+----
+
+Note that in comments we are also using include macro for inserting files inside. The rules for inclusion are the next ones:
+
+* if include contains a +java+ file, like first example, the whole class is read and inserted within AsciiDoc source code blocks.
+
+* if include contains a +java+ file but with # symbol, like second one, the right part of # will be used as method name of given class. So for example +Project#setId(String, String)+ will include a method of Project's class called +setId+ and receiving two string parameters.
+
+* if include contains an +xml+ file, the file is inserted "as is" within AsciiDoc source code block.
+
+* if include contains an +xml+ file and between brackets there is an +xpath+ expression, the result of that expression will be inserted.
+
+* any other include is left "as is", so it will be processed by +AsciiDoc(tor)+ processor.
+
+Also note that the include files will be resolved relative from place where the CLI is being run, typically from the root of the project.
+
+To render previous class we can call as:
+
+java -jar asciidoctorfy-<version>.jar --input=src/test/java/com/lordofthejars/asciidoctorfy/MM.java --output=README.adoc
+
+And an +AsciiDoc+ file will be generated from comments blocks.
+
+There is one optional parameter called +--baseDir+. This parameter is used to set the baseDir in include macros. So for example if you set baseDir to +/home/lotj/project+, the include macro will be resolved to +include::/home/lotj/project/src/test/java/....+.
+
+New features will be added when they are required but of course feel free to clone and improve it.
