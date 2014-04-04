@@ -14,7 +14,9 @@ import org.junit.Test;
  *
  * include::src/test/java/com/lordofthejars/asciidoctorfy/MyInterface.java[]
  *
- * include::src/test/java/com/lordofthejars/asciidoctorfy/Project#getId.java[]
+ * include::src/test/java/com/lordofthejars/asciidoctorfy/Project#getId().java[]
+ * 
+ * include::src/test/java/com/lordofthejars/asciidoctorfy/Project#computeSomething(int, int).java[]
  *
  */
 public class MM {

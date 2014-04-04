@@ -36,7 +36,7 @@ public class JavaSourceReader {
     private static final String START_COMMENT = "/**";
     private static final String END_COMMENT = "*/";
     private static final String COMMENT_SYMBOL = "*";
-    private static final String INCLUDE_JAVA = "include::[\\w/#]+\\.java\\[\\w*\\]";
+    private static final String INCLUDE_JAVA = "include::[\\w(),\\s/#]+\\.java\\[\\w*\\]";
     private static final String INCLUDE_XML = "include::[\\w/]+\\.xml\\[.*\\]";
     private static final String METHOD_KEY = "method";
     private static final String METHOD_SEPARATOR = "#";

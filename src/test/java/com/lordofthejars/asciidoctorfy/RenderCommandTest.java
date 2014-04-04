@@ -53,8 +53,12 @@ public class RenderCommandTest {
 		File outputFile = temporaryFolder.newFile("output.adoc");
 		renderCommand.render(new File("src/test/java/com/lordofthejars/asciidoctorfy/MM.java"), outputFile, new File("."));
 		
+		String output = readFull(outputFile).trim();
 		
-		assertThat(readFull(outputFile).trim(), is(EXPECTED_OUTPUT));
+		assertThat(output, containsString("My name is *Alex*."));
+		assertThat(output, containsString("public interface MyInterface"));
+		assertThat(output, containsString("public String getId()"));
+		assertThat(output, containsString("public void computeSomething(int a, int b)"));
 		
 	}
 	

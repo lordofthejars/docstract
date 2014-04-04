@@ -8,6 +8,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -106,6 +107,29 @@ public class Java7Parser {
 
 		private StringBuilder source = new StringBuilder();
 
+		private String getMethodSignature(MethodDeclaration n) {
+
+            String pattern = n.getName() +"\\s*[(]\\s*";
+
+            String params = "";
+            if (n.getParameters() != null) {
+                for (Iterator<Parameter> i = n.getParameters().iterator(); i
+                        .hasNext();) {
+                    Parameter p = i.next();
+                    params += p.getType() + "\\s*";
+                    if (i.hasNext()) {
+                        params += "," + "\\s*";
+                    }
+                }
+            }
+
+            pattern += params;
+
+            pattern += "\\s*[)]";
+
+            return pattern;
+        }
+		
 		@Override
 		public void visit(CompilationUnit n, Map<String, Object> arg) {
 
@@ -184,7 +208,8 @@ public class Java7Parser {
 			if (arg.containsKey("method")) {
 				String methodName = (String) arg.get("method");
 
-				if (methodName.equals(n.getName())) {
+				String patternMethod = getMethodSignature(n);
+				if (methodName.matches(patternMethod)) {
 					source.append(getCodeFromOriginalFile(n,
 							n.getBeginLine() - 1, n.getEndLine()));
 				}

@@ -29,5 +29,8 @@ public class Project {
 		return location;
 	}
 	
+	public void computeSomething(int a, int b) {
+	    
+	}
 	
 }
