@@ -39,8 +39,8 @@ public class MM {
 
 And the output document looks like:
 
-[source, asciidoc]
-----
+
+====
 My name is *Alex*.
 I am 33 years _old_.
 
@@ -65,7 +65,7 @@ public String getId() {
 ----
 
 It is a *method*.
-----
+====
 
 Note that in comments we are also using include macro for inserting files inside. The rules for inclusion are the next ones:
 
