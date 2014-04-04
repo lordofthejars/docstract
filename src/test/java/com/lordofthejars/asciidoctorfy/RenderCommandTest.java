@@ -3,6 +3,7 @@ package com.lordofthejars.asciidoctorfy;
 import static com.lordofthejars.asciidoctorfy.IOUtils.NEW_LINE;
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.containsString;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -65,9 +66,10 @@ public class RenderCommandTest {
         File outputFile = temporaryFolder.newFile("output.adoc");
         renderCommand.render(new File("src/test/java/com/lordofthejars/asciidoctorfy/Xml.java"), outputFile, new File("."));
         
-        System.out.println(readFull(outputFile).trim());
+        String output = IOUtils.readFull(outputFile);
         
-        //assertThat(readFull(outputFile).trim(), is(EXPECTED_OUTPUT));
+        assertThat(output, containsString("<name>b</name>"));
+        assertThat(output, containsString("<name>c</name>"));
         
     }
 	

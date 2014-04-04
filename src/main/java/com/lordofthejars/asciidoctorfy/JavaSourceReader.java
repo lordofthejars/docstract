@@ -31,6 +31,8 @@ import com.github.antlrjavaparser.ParseException;
 
 public class JavaSourceReader {
 
+    private static final String OPEN_BRACKET = "[";
+    private static final String CLOSE_BRACKET = "]";
     private static final String START_COMMENT = "/**";
     private static final String END_COMMENT = "*/";
     private static final String COMMENT_SYMBOL = "*";
@@ -82,41 +84,27 @@ public class JavaSourceReader {
     }
 
     private void resolveAsciiDocLine(final String asciidocLine) throws FileNotFoundException, IOException {
+       
         if (isAJavaIncludeSentence(asciidocLine)) {
+        
             resolveJavaInclude(asciidocLine);
+        
         } else {
+        
             if (isAnXmlIncludeSentence(asciidocLine)) {
+            
                 String fileName = getFilenamePath(asciidocLine);
 
                 if (isIncludeWithXPath(asciidocLine)) {
-                    XPath xpath = XPathFactory.newInstance().newXPath();
-                    String expression = "/servers/name";
-                    InputSource inputSource = new InputSource(new FileInputStream(new File(this.baseDir, fileName)));
-                    try {
-                        NodeList nodes = (NodeList) xpath.evaluate(expression, inputSource, XPathConstants.NODESET);
-                        StringBuilder xmlContent = new StringBuilder();
-                        
-                        for (int i = 0; i < nodes.getLength(); i++) {
-                            xmlContent.append(printNode(nodes.item(i))).append(NEW_LINE);
-                        }
-                        
-                        content.append("[source, xml]").append(NEW_LINE);
-                        content.append("----").append(NEW_LINE);
-                        content.append(xmlContent.toString().trim()).append(NEW_LINE);
-                        content.append("----").append(NEW_LINE);
-                        
-                    } catch (XPathExpressionException e) {
-                        throw new IllegalArgumentException(e);
-                    } catch (TransformerException e) {
-                        throw new IllegalArgumentException(e);
-                    }
+
+                    String xmlContent = executeXpathExpression(asciidocLine, fileName);
+                    appendXmlSourceCode(xmlContent);
+
                 } else {
-                    content.append("[source, xml]").append(NEW_LINE);
-                    content.append("----").append(NEW_LINE);
-                    content.append(IOUtils.readFull(new File(this.baseDir, fileName)).trim()).append(NEW_LINE);
-                    content.append("----").append(NEW_LINE);
+                    appendXmlSourceCode(IOUtils.readFull(new File(this.baseDir, fileName)));
                 }
             } else {
+               
                 if (isEmptyCommentLine(asciidocLine)) {
                     content.append(NEW_LINE);
                 } else {
@@ -126,11 +114,48 @@ public class JavaSourceReader {
         }
     }
 
+    private void appendXmlSourceCode(String sourceCode) {
+        content.append("[source, xml]").append(NEW_LINE);
+        content.append("----").append(NEW_LINE);
+        content.append(sourceCode.trim()).append(NEW_LINE);
+        content.append("----").append(NEW_LINE);
+    }
+    
+    private String executeXpathExpression(final String asciidocLine, String fileName) throws FileNotFoundException {
+
+        StringBuilder xmlContent = new StringBuilder();
+
+        XPath xpath = XPathFactory.newInstance().newXPath();
+        String expression = getXpathExpression(asciidocLine);
+        InputSource inputSource = new InputSource(new FileInputStream(new File(this.baseDir, fileName)));
+
+        try {
+            
+            NodeList nodes = (NodeList) xpath.evaluate(expression, inputSource, XPathConstants.NODESET);
+
+            for (int i = 0; i < nodes.getLength(); i++) {
+                xmlContent.append(printNode(nodes.item(i))).append(NEW_LINE);
+            }
+
+            return xmlContent.toString();
+
+        } catch (XPathExpressionException e) {
+            throw new IllegalArgumentException(e);
+        } catch (TransformerException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    private String getXpathExpression(String asciidocLine) {
+        return asciidocLine.substring(asciidocLine.indexOf(OPEN_BRACKET) + 1, asciidocLine.lastIndexOf(CLOSE_BRACKET));
+    }
+
     private boolean isEmptyCommentLine(final String asciidocLine) {
         return asciidocLine.length() == 0;
     }
 
     private void resolveJavaInclude(final String asciidocLine) throws FileNotFoundException, IOException {
+        
         String fileName = getFilenamePath(asciidocLine);
 
         if (isIncludeWithMethod(fileName)) {
@@ -141,6 +166,7 @@ public class JavaSourceReader {
     }
 
     private void includeJavaClass(String fileName) throws FileNotFoundException, IOException {
+        
         Map<String, Object> attributes = new HashMap<>();
         attributes.put(CLASS_KEY, "");
 
@@ -150,6 +176,7 @@ public class JavaSourceReader {
     }
 
     private void appendSourceCode(Map<String, Object> attributes, InputStream fileInputStream) throws IOException {
+        
         String extractedContent = java7Parser.extract(fileInputStream, attributes);
         content.append("[source, java]").append(NEW_LINE);
         content.append("----").append(NEW_LINE);
@@ -174,20 +201,21 @@ public class JavaSourceReader {
 
     private boolean isIncludeWithXPath(String fileName) {
         // Inspect if there is content between []
-        return fileName.indexOf("]") - fileName.indexOf("[") > 1;
+        return fileName.indexOf(CLOSE_BRACKET) - fileName.indexOf(OPEN_BRACKET) > 1;
     }
 
     private String printNode(Node rootNode) throws TransformerException {
+
         Transformer transformer = TransformerFactory.newInstance().newTransformer();
         transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
         transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
         transformer.setOutputProperty(OutputKeys.INDENT, "yes");
         transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
-     
+
         StringWriter stringWriter = new StringWriter();
         StreamResult streamResult = new StreamResult(stringWriter);
         transformer.transform(new DOMSource(rootNode), streamResult);
-        
+
         return stringWriter.toString();
     }
 
@@ -196,7 +224,7 @@ public class JavaSourceReader {
     }
 
     private String getFilenamePath(final String asciidocLine) {
-        return asciidocLine.substring(9, asciidocLine.lastIndexOf("["));
+        return asciidocLine.substring(9, asciidocLine.lastIndexOf(OPEN_BRACKET));
     }
 
     private boolean isAnXmlIncludeSentence(final String asciidocLine) {
