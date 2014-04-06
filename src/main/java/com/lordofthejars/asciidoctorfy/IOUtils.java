@@ -16,59 +16,61 @@ import java.util.Scanner;
 
 public class IOUtils {
 
-	public static final String NEW_LINE = System.getProperty("line.separator");
-	
-	public static ByteArrayInputStream copyInputStream(InputStream inputStream)
-			throws IOException {
+    public static final String NEW_LINE = System.getProperty("line.separator");
 
-		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+    public static ByteArrayInputStream copyInputStream(InputStream inputStream) throws IOException {
 
-		int nRead;
-		byte[] data = new byte[16384];
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
-		while ((nRead = inputStream.read(data, 0, data.length)) != -1) {
-			buffer.write(data, 0, nRead);
-		}
+        int nRead;
+        byte[] data = new byte[16384];
 
-		return new ByteArrayInputStream(buffer.toByteArray());
+        while ((nRead = inputStream.read(data, 0, data.length)) != -1) {
+            buffer.write(data, 0, nRead);
+        }
 
-	}
-	
-	public static String readFull(File file) throws IOException {
-	    return new String(Files.readAllBytes(Paths.get(file.getAbsolutePath())));
-	}
-	
-	public static String[] readFull(InputStream inputStream) {
-		List<String> lines = new ArrayList<String>();
-		Scanner scanner = new Scanner(inputStream);
+        return new ByteArrayInputStream(buffer.toByteArray());
 
-		while (scanner.hasNextLine()) {
-			lines.add(scanner.nextLine());
-		}
+    }
 
-		scanner.close();
+    public static String readFull(File file) throws IOException {
+        return new String(Files.readAllBytes(Paths.get(file.getAbsolutePath())));
+    }
 
-		return lines.toArray(new String[lines.size()]);
+    public static String[] readFull(InputStream inputStream) {
+        List<String> lines = new ArrayList<String>();
+        Scanner scanner = new Scanner(inputStream);
 
-	}
-	
-	public static void writeFull(String content, OutputStream outputStream) throws IOException {
-		BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream));
-		bufferedWriter.write(content);
-		bufferedWriter.flush();
-		bufferedWriter.close();
-	}
+        while (scanner.hasNextLine()) {
+            lines.add(scanner.nextLine());
+        }
 
-	public static String join(String[] content, int initialIndex) {
-		StringBuilder stringBuilder = new StringBuilder();
+        scanner.close();
 
-		for (String string : content) {
-			stringBuilder.append(string.substring(initialIndex)).append(
-					NEW_LINE);
-		}
+        return lines.toArray(new String[lines.size()]);
 
-		return stringBuilder.toString();
+    }
 
-	}
-	
+    public static void writeFull(String content, OutputStream outputStream) throws IOException {
+        BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream));
+        bufferedWriter.write(content);
+        bufferedWriter.flush();
+        bufferedWriter.close();
+    }
+
+    public static String join(String[] content, int initialIndex) {
+        StringBuilder stringBuilder = new StringBuilder();
+
+        for (String string : content) {
+            if (string.length() >= initialIndex) {
+                stringBuilder.append(string.substring(initialIndex)).append(NEW_LINE);
+            } else {
+                stringBuilder.append(string.trim()).append(NEW_LINE);
+            }
+        }
+
+        return stringBuilder.toString();
+
+    }
+
 }
