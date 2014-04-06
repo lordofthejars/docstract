@@ -20,6 +20,21 @@ public class RenderCommandTest {
 	public TemporaryFolder temporaryFolder = new TemporaryFolder();
 	
 	@Test
+	public void should_render_javadoc_content_with_callouts_as_AsciiDoc_file() throws IOException {
+	    
+	    RenderCommand renderCommand = new RenderCommand();
+        
+        File outputFile = temporaryFolder.newFile("output.adoc");
+        renderCommand.render(new File("src/test/java/com/lordofthejars/asciidoctorfy/Callouts.java"), outputFile, new File("."));
+        
+        String output = readFull(outputFile).trim();
+	    
+        assertThat(output, containsString("// <1>"));
+        assertThat(output, containsString("<1> Prints Hello World"));
+        
+	}
+	
+	@Test
 	public void should_render_javadoc_content_as_AsciiDoc_file() throws ParseException, FileNotFoundException, IOException {
 		
 		RenderCommand renderCommand = new RenderCommand();

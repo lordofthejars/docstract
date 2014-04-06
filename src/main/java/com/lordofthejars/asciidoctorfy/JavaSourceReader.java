@@ -41,7 +41,7 @@ public class JavaSourceReader {
     private static final String METHOD_KEY = "method";
     private static final String METHOD_SEPARATOR = "#";
     private static final String CLASS_KEY = "class";
-    private Java7Parser java7Parser = new Java7Parser();
+    
     private StringBuilder content = new StringBuilder();
 
     private File baseDir = new File(".");
@@ -177,11 +177,18 @@ public class JavaSourceReader {
 
     private void appendSourceCode(Map<String, Object> attributes, InputStream fileInputStream) throws IOException {
         
-        String extractedContent = java7Parser.extract(fileInputStream, attributes);
+        Java7Parser java7Parser = new Java7Parser();
+        ContentAndCallouts extractedContent = java7Parser.extract(fileInputStream, attributes);
+        
         content.append("[source, java]").append(NEW_LINE);
         content.append("----").append(NEW_LINE);
-        content.append(extractedContent.trim()).append(NEW_LINE);
+        content.append(extractedContent.getContent().trim()).append(NEW_LINE);
         content.append("----").append(NEW_LINE);
+        String callouts = extractedContent.getCallouts().trim();
+        
+        if(!"".equals(callouts)) {
+            content.append(callouts).append(NEW_LINE);
+        }
     }
 
     private void includeJavaMethod(String fileName) throws FileNotFoundException, IOException {

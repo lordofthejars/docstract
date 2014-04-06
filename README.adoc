@@ -81,6 +81,10 @@ Note that in comments we are also using include macro for inserting files inside
 
 Also note that the include files will be resolved relative from place where the CLI is being run, typically from the root of the project.
 
+== Callouts
+
+You can use callouts inside +java+ code and the processor will render it in the proper way.
+
 == Download
 
 You can grab a runnable jar from https://bintray.com/lordofthejars/generic/Asciidoctorfy/0.1.0/view/files
@@ -102,5 +106,7 @@ There is one optional parameter called +--baseDir+. This parameter is used to se
 You can see an example at community _Tomitribe_ examples with class: https://github.com/tomitribe/community/blob/master/mongodb-example/src/test/java/org/superbiz/nosql/mongodb/GreetingsSessionBeanTest.java and the rendered output: https://github.com/tomitribe/community/blob/master/mongodb-example/README.adoc 
 
 == Collaboration
+
+Next steps will be adding callouts for +xml+ files and adding the possibility to use _<,>_ inside callouts.
 
 New features will be added when they are required but of course feel free to clone and improve it.

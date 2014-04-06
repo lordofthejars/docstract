@@ -102,19 +102,22 @@ import com.github.antlrjavaparser.api.visitor.VoidVisitor;
 
 public class Java7Parser {
 
+    private static final String CALLOUT_PATTERN_LINE = ".*//\\s+<\\d+>.*";
 
-	class SearchElement implements VoidVisitor<Map<String, Object>> {
+    private StringBuilder output = new StringBuilder();
+    private StringBuilder callouts = new StringBuilder();
 
-		private StringBuilder source = new StringBuilder();
+    class SearchElement implements VoidVisitor<Map<String, Object>> {
 
-		private String getMethodSignature(MethodDeclaration n) {
+        private StringBuilder source = new StringBuilder();
 
-            String pattern = n.getName() +"\\s*[(]\\s*";
+        private String getMethodSignature(MethodDeclaration n) {
+
+            String pattern = n.getName() + "\\s*[(]\\s*";
 
             String params = "";
             if (n.getParameters() != null) {
-                for (Iterator<Parameter> i = n.getParameters().iterator(); i
-                        .hasNext();) {
+                for (Iterator<Parameter> i = n.getParameters().iterator(); i.hasNext();) {
                     Parameter p = i.next();
                     params += p.getType() + "\\s*";
                     if (i.hasNext()) {
@@ -129,435 +132,434 @@ public class Java7Parser {
 
             return pattern;
         }
-		
-		@Override
-		public void visit(CompilationUnit n, Map<String, Object> arg) {
 
-		}
+        @Override
+        public void visit(CompilationUnit n, Map<String, Object> arg) {
 
-		@Override
-		public void visit(PackageDeclaration n, Map<String, Object> arg) {
-		}
+        }
 
-		@Override
-		public void visit(ImportDeclaration n, Map<String, Object> arg) {
-		}
+        @Override
+        public void visit(PackageDeclaration n, Map<String, Object> arg) {
+        }
 
-		@Override
-		public void visit(TypeParameter n, Map<String, Object> arg) {
-		}
+        @Override
+        public void visit(ImportDeclaration n, Map<String, Object> arg) {
+        }
 
-		@Override
-		public void visit(LineComment n, Map<String, Object> arg) {
-		}
+        @Override
+        public void visit(TypeParameter n, Map<String, Object> arg) {
+        }
 
-		@Override
-		public void visit(BlockComment n, Map<String, Object> arg) {
-		}
+        @Override
+        public void visit(LineComment n, Map<String, Object> arg) {
+        }
 
-		@Override
-		public void visit(ClassOrInterfaceDeclaration n, Map<String, Object> arg) {
-		}
+        @Override
+        public void visit(BlockComment n, Map<String, Object> arg) {
+        }
 
-		@Override
-		public void visit(Comment n, Map<String, Object> arg) {
-		}
+        @Override
+        public void visit(ClassOrInterfaceDeclaration n, Map<String, Object> arg) {
+        }
 
-		@Override
-		public void visit(EnumDeclaration n, Map<String, Object> arg) {
-		}
+        @Override
+        public void visit(Comment n, Map<String, Object> arg) {
+        }
 
-		@Override
-		public void visit(EmptyTypeDeclaration n, Map<String, Object> arg) {
-		}
+        @Override
+        public void visit(EnumDeclaration n, Map<String, Object> arg) {
+        }
 
-		@Override
-		public void visit(EnumConstantDeclaration n, Map<String, Object> arg) {
-		}
+        @Override
+        public void visit(EmptyTypeDeclaration n, Map<String, Object> arg) {
+        }
 
-		@Override
-		public void visit(AnnotationDeclaration n, Map<String, Object> arg) {
-		}
+        @Override
+        public void visit(EnumConstantDeclaration n, Map<String, Object> arg) {
+        }
 
-		@Override
-		public void visit(AnnotationMemberDeclaration n, Map<String, Object> arg) {
+        @Override
+        public void visit(AnnotationDeclaration n, Map<String, Object> arg) {
+        }
 
-		}
+        @Override
+        public void visit(AnnotationMemberDeclaration n, Map<String, Object> arg) {
 
-		@Override
-		public void visit(FieldDeclaration n, Map<String, Object> arg) {
-		}
+        }
 
-		@Override
-		public void visit(VariableDeclarator n, Map<String, Object> arg) {
+        @Override
+        public void visit(FieldDeclaration n, Map<String, Object> arg) {
+        }
 
-		}
+        @Override
+        public void visit(VariableDeclarator n, Map<String, Object> arg) {
 
-		@Override
-		public void visit(VariableDeclaratorId n, Map<String, Object> arg) {
+        }
 
-		}
+        @Override
+        public void visit(VariableDeclaratorId n, Map<String, Object> arg) {
 
-		@Override
-		public void visit(ConstructorDeclaration n, Map<String, Object> arg) {
-		}
+        }
 
-		@Override
-		public void visit(MethodDeclaration n, Map<String, Object> arg) {
+        @Override
+        public void visit(ConstructorDeclaration n, Map<String, Object> arg) {
+        }
 
-			if (arg.containsKey("method")) {
-				String methodName = (String) arg.get("method");
+        @Override
+        public void visit(MethodDeclaration n, Map<String, Object> arg) {
 
-				String patternMethod = getMethodSignature(n);
-				if (methodName.matches(patternMethod)) {
-					source.append(getCodeFromOriginalFile(n,
-							n.getBeginLine() - 1, n.getEndLine()));
-				}
-			}
+            if (arg.containsKey("method")) {
+                String methodName = (String) arg.get("method");
 
-		}
+                String patternMethod = getMethodSignature(n);
+                if (methodName.matches(patternMethod)) {
+                    source.append(getCodeFromOriginalFile(n, n.getBeginLine() - 1, n.getEndLine()));
+                }
+            }
 
-		@Override
-		public void visit(Parameter n, Map<String, Object> arg) {
-		}
+        }
 
-		@Override
-		public void visit(CatchParameter n, Map<String, Object> arg) {
-		}
+        @Override
+        public void visit(Parameter n, Map<String, Object> arg) {
+        }
 
-		@Override
-		public void visit(Resource n, Map<String, Object> arg) {
-		}
+        @Override
+        public void visit(CatchParameter n, Map<String, Object> arg) {
+        }
 
-		@Override
-		public void visit(EmptyMemberDeclaration n, Map<String, Object> arg) {
-		}
-
-		@Override
-		public void visit(InitializerDeclaration n, Map<String, Object> arg) {
-		}
-
-		@Override
-		public void visit(JavadocComment n, Map<String, Object> arg) {
-		}
-
-		@Override
-		public void visit(ClassOrInterfaceType n, Map<String, Object> arg) {
-		}
-
-		@Override
-		public void visit(PrimitiveType n, Map<String, Object> arg) {
-		}
-
-		@Override
-		public void visit(ReferenceType n, Map<String, Object> arg) {
-		}
-
-		@Override
-		public void visit(VoidType n, Map<String, Object> arg) {
-		}
-
-		@Override
-		public void visit(WildcardType n, Map<String, Object> arg) {
-		}
-
-		@Override
-		public void visit(ArrayAccessExpr n, Map<String, Object> arg) {
-		}
-
-		@Override
-		public void visit(ArrayCreationExpr n, Map<String, Object> arg) {
-		}
-
-		@Override
-		public void visit(ArrayInitializerExpr n, Map<String, Object> arg) {
-		}
-
-		@Override
-		public void visit(AssignExpr n, Map<String, Object> arg) {
-		}
-
-		@Override
-		public void visit(BinaryExpr n, Map<String, Object> arg) {
-		}
-
-		@Override
-		public void visit(CastExpr n, Map<String, Object> arg) {
-		}
-
-		@Override
-		public void visit(ClassExpr n, Map<String, Object> arg) {
-		}
-
-		@Override
-		public void visit(ConditionalExpr n, Map<String, Object> arg) {
-		}
-
-		@Override
-		public void visit(EnclosedExpr n, Map<String, Object> arg) {
-		}
-
-		@Override
-		public void visit(FieldAccessExpr n, Map<String, Object> arg) {
-		}
-
-		@Override
-		public void visit(InstanceOfExpr n, Map<String, Object> arg) {
-		}
-
-		@Override
-		public void visit(StringLiteralExpr n, Map<String, Object> arg) {
-		}
-
-		@Override
-		public void visit(IntegerLiteralExpr n, Map<String, Object> arg) {
-		}
-
-		@Override
-		public void visit(LongLiteralExpr n, Map<String, Object> arg) {
-		}
-
-		@Override
-		public void visit(IntegerLiteralMinValueExpr n, Map<String, Object> arg) {
-		}
-
-		@Override
-		public void visit(LongLiteralMinValueExpr n, Map<String, Object> arg) {
-		}
-
-		@Override
-		public void visit(CharLiteralExpr n, Map<String, Object> arg) {
-		}
-
-		@Override
-		public void visit(DoubleLiteralExpr n, Map<String, Object> arg) {
-		}
-
-		@Override
-		public void visit(BooleanLiteralExpr n, Map<String, Object> arg) {
-		}
-
-		@Override
-		public void visit(NullLiteralExpr n, Map<String, Object> arg) {
-		}
-
-		@Override
-		public void visit(MethodCallExpr n, Map<String, Object> arg) {
-		}
-
-		@Override
-		public void visit(NameExpr n, Map<String, Object> arg) {
-		}
-
-		@Override
-		public void visit(ObjectCreationExpr n, Map<String, Object> arg) {
-		}
-
-		@Override
-		public void visit(QualifiedNameExpr n, Map<String, Object> arg) {
-		}
-
-		@Override
-		public void visit(ThisExpr n, Map<String, Object> arg) {
-		}
-
-		@Override
-		public void visit(SuperExpr n, Map<String, Object> arg) {
-		}
-
-		@Override
-		public void visit(UnaryExpr n, Map<String, Object> arg) {
-		}
-
-		@Override
-		public void visit(VariableDeclarationExpr n, Map<String, Object> arg) {
-		}
-
-		@Override
-		public void visit(MarkerAnnotationExpr n, Map<String, Object> arg) {
-		}
+        @Override
+        public void visit(Resource n, Map<String, Object> arg) {
+        }
 
-		@Override
-		public void visit(SingleMemberAnnotationExpr n, Map<String, Object> arg) {
-		}
+        @Override
+        public void visit(EmptyMemberDeclaration n, Map<String, Object> arg) {
+        }
+
+        @Override
+        public void visit(InitializerDeclaration n, Map<String, Object> arg) {
+        }
+
+        @Override
+        public void visit(JavadocComment n, Map<String, Object> arg) {
+        }
+
+        @Override
+        public void visit(ClassOrInterfaceType n, Map<String, Object> arg) {
+        }
+
+        @Override
+        public void visit(PrimitiveType n, Map<String, Object> arg) {
+        }
+
+        @Override
+        public void visit(ReferenceType n, Map<String, Object> arg) {
+        }
+
+        @Override
+        public void visit(VoidType n, Map<String, Object> arg) {
+        }
+
+        @Override
+        public void visit(WildcardType n, Map<String, Object> arg) {
+        }
+
+        @Override
+        public void visit(ArrayAccessExpr n, Map<String, Object> arg) {
+        }
+
+        @Override
+        public void visit(ArrayCreationExpr n, Map<String, Object> arg) {
+        }
+
+        @Override
+        public void visit(ArrayInitializerExpr n, Map<String, Object> arg) {
+        }
+
+        @Override
+        public void visit(AssignExpr n, Map<String, Object> arg) {
+        }
+
+        @Override
+        public void visit(BinaryExpr n, Map<String, Object> arg) {
+        }
+
+        @Override
+        public void visit(CastExpr n, Map<String, Object> arg) {
+        }
+
+        @Override
+        public void visit(ClassExpr n, Map<String, Object> arg) {
+        }
+
+        @Override
+        public void visit(ConditionalExpr n, Map<String, Object> arg) {
+        }
+
+        @Override
+        public void visit(EnclosedExpr n, Map<String, Object> arg) {
+        }
+
+        @Override
+        public void visit(FieldAccessExpr n, Map<String, Object> arg) {
+        }
+
+        @Override
+        public void visit(InstanceOfExpr n, Map<String, Object> arg) {
+        }
+
+        @Override
+        public void visit(StringLiteralExpr n, Map<String, Object> arg) {
+        }
+
+        @Override
+        public void visit(IntegerLiteralExpr n, Map<String, Object> arg) {
+        }
+
+        @Override
+        public void visit(LongLiteralExpr n, Map<String, Object> arg) {
+        }
+
+        @Override
+        public void visit(IntegerLiteralMinValueExpr n, Map<String, Object> arg) {
+        }
+
+        @Override
+        public void visit(LongLiteralMinValueExpr n, Map<String, Object> arg) {
+        }
+
+        @Override
+        public void visit(CharLiteralExpr n, Map<String, Object> arg) {
+        }
+
+        @Override
+        public void visit(DoubleLiteralExpr n, Map<String, Object> arg) {
+        }
+
+        @Override
+        public void visit(BooleanLiteralExpr n, Map<String, Object> arg) {
+        }
+
+        @Override
+        public void visit(NullLiteralExpr n, Map<String, Object> arg) {
+        }
+
+        @Override
+        public void visit(MethodCallExpr n, Map<String, Object> arg) {
+        }
+
+        @Override
+        public void visit(NameExpr n, Map<String, Object> arg) {
+        }
+
+        @Override
+        public void visit(ObjectCreationExpr n, Map<String, Object> arg) {
+        }
+
+        @Override
+        public void visit(QualifiedNameExpr n, Map<String, Object> arg) {
+        }
+
+        @Override
+        public void visit(ThisExpr n, Map<String, Object> arg) {
+        }
+
+        @Override
+        public void visit(SuperExpr n, Map<String, Object> arg) {
+        }
+
+        @Override
+        public void visit(UnaryExpr n, Map<String, Object> arg) {
+        }
+
+        @Override
+        public void visit(VariableDeclarationExpr n, Map<String, Object> arg) {
+        }
+
+        @Override
+        public void visit(MarkerAnnotationExpr n, Map<String, Object> arg) {
+        }
 
-		@Override
-		public void visit(NormalAnnotationExpr n, Map<String, Object> arg) {
-		}
+        @Override
+        public void visit(SingleMemberAnnotationExpr n, Map<String, Object> arg) {
+        }
 
-		@Override
-		public void visit(MemberValuePair n, Map<String, Object> arg) {
-		}
+        @Override
+        public void visit(NormalAnnotationExpr n, Map<String, Object> arg) {
+        }
 
-		@Override
-		public void visit(ExplicitConstructorInvocationStmt n,
-				Map<String, Object> arg) {
-		}
+        @Override
+        public void visit(MemberValuePair n, Map<String, Object> arg) {
+        }
 
-		@Override
-		public void visit(TypeDeclarationStmt n, Map<String, Object> arg) {
-		}
+        @Override
+        public void visit(ExplicitConstructorInvocationStmt n, Map<String, Object> arg) {
+        }
 
-		@Override
-		public void visit(AssertStmt n, Map<String, Object> arg) {
-		}
+        @Override
+        public void visit(TypeDeclarationStmt n, Map<String, Object> arg) {
+        }
 
-		@Override
-		public void visit(BlockStmt n, Map<String, Object> arg) {
-		}
+        @Override
+        public void visit(AssertStmt n, Map<String, Object> arg) {
+        }
 
-		@Override
-		public void visit(LabeledStmt n, Map<String, Object> arg) {
-		}
+        @Override
+        public void visit(BlockStmt n, Map<String, Object> arg) {
+        }
 
-		@Override
-		public void visit(EmptyStmt n, Map<String, Object> arg) {
-		}
+        @Override
+        public void visit(LabeledStmt n, Map<String, Object> arg) {
+        }
 
-		@Override
-		public void visit(ExpressionStmt n, Map<String, Object> arg) {
-		}
+        @Override
+        public void visit(EmptyStmt n, Map<String, Object> arg) {
+        }
 
-		@Override
-		public void visit(SwitchStmt n, Map<String, Object> arg) {
-		}
+        @Override
+        public void visit(ExpressionStmt n, Map<String, Object> arg) {
+        }
 
-		@Override
-		public void visit(SwitchEntryStmt n, Map<String, Object> arg) {
-		}
+        @Override
+        public void visit(SwitchStmt n, Map<String, Object> arg) {
+        }
 
-		@Override
-		public void visit(BreakStmt n, Map<String, Object> arg) {
-		}
+        @Override
+        public void visit(SwitchEntryStmt n, Map<String, Object> arg) {
+        }
 
-		@Override
-		public void visit(ReturnStmt n, Map<String, Object> arg) {
-		}
+        @Override
+        public void visit(BreakStmt n, Map<String, Object> arg) {
+        }
 
-		@Override
-		public void visit(IfStmt n, Map<String, Object> arg) {
-		}
+        @Override
+        public void visit(ReturnStmt n, Map<String, Object> arg) {
+        }
 
-		@Override
-		public void visit(WhileStmt n, Map<String, Object> arg) {
-		}
+        @Override
+        public void visit(IfStmt n, Map<String, Object> arg) {
+        }
 
-		@Override
-		public void visit(ContinueStmt n, Map<String, Object> arg) {
-		}
+        @Override
+        public void visit(WhileStmt n, Map<String, Object> arg) {
+        }
+
+        @Override
+        public void visit(ContinueStmt n, Map<String, Object> arg) {
+        }
+
+        @Override
+        public void visit(DoStmt n, Map<String, Object> arg) {
+        }
+
+        @Override
+        public void visit(ForeachStmt n, Map<String, Object> arg) {
+        }
 
-		@Override
-		public void visit(DoStmt n, Map<String, Object> arg) {
-		}
+        @Override
+        public void visit(ForStmt n, Map<String, Object> arg) {
+        }
 
-		@Override
-		public void visit(ForeachStmt n, Map<String, Object> arg) {
-		}
+        @Override
+        public void visit(ThrowStmt n, Map<String, Object> arg) {
+        }
 
-		@Override
-		public void visit(ForStmt n, Map<String, Object> arg) {
-		}
+        @Override
+        public void visit(SynchronizedStmt n, Map<String, Object> arg) {
+        }
 
-		@Override
-		public void visit(ThrowStmt n, Map<String, Object> arg) {
-		}
+        @Override
+        public void visit(TryStmt n, Map<String, Object> arg) {
+        }
 
-		@Override
-		public void visit(SynchronizedStmt n, Map<String, Object> arg) {
-		}
+        @Override
+        public void visit(CatchClause n, Map<String, Object> arg) {
+        }
 
-		@Override
-		public void visit(TryStmt n, Map<String, Object> arg) {
-		}
+    }
 
-		@Override
-		public void visit(CatchClause n, Map<String, Object> arg) {
-		}
+    private String[] originalSourceCode = new String[0];
+    private ByteArrayInputStream originalStream = null;
 
-	}
+    public ContentAndCallouts extract(InputStream is, Map<String, Object> attributes) throws ParseException, IOException {
 
-	private String[] originalSourceCode = new String[0];
-	private ByteArrayInputStream originalStream = null;
+        this.originalStream = copyInputStream(is);
+        CompilationUnit compilationUnit = JavaParser.parse(originalStream);
 
-	public String extract(InputStream is, Map<String, Object> attributes)
-			throws ParseException, IOException {
+        this.originalStream.reset();
+        this.originalSourceCode = readFull(this.originalStream);
 
-		this.originalStream = copyInputStream(is);
-		CompilationUnit compilationUnit = JavaParser.parse(originalStream);
+        boolean clazz = attributes.containsKey("class");
 
-		this.originalStream.reset();
-		this.originalSourceCode = readFull(this.originalStream);
+        final List<TypeDeclaration> types = compilationUnit.getTypes();
 
-		boolean clazz = attributes.containsKey("class");
+        for (TypeDeclaration typeDeclaration : types) {
 
-		StringBuilder output = new StringBuilder();
+            if (clazz) {
+                final String bodyClass = getCodeFromOriginalFile(typeDeclaration, typeDeclaration.getBeginLine() - 1,
+                        typeDeclaration.getEndLine());
+                output.append(bodyClass);
+            } else {
 
-		final List<TypeDeclaration> types = compilationUnit.getTypes();
+                final List<BodyDeclaration> members = typeDeclaration.getMembers();
+                for (BodyDeclaration bodyDeclaration : members) {
+                    final SearchElement v = new SearchElement();
+                    bodyDeclaration.accept(v, attributes);
+                    output.append(v.source.toString());
+                }
+            }
 
-		for (TypeDeclaration typeDeclaration : types) {
+        }
 
-			if (clazz) {
-				final String bodyClass = getCodeFromOriginalFile(
-						typeDeclaration, typeDeclaration.getBeginLine() - 1,
-						typeDeclaration.getEndLine());
-				output.append(removeJavaDoc(bodyClass));
-			} else {
+        return new ContentAndCallouts(this.output.toString(), this.callouts.toString());
 
-				final List<BodyDeclaration> members = typeDeclaration
-						.getMembers();
-				for (BodyDeclaration bodyDeclaration : members) {
-					final SearchElement v = new SearchElement();
-					bodyDeclaration.accept(v, attributes);
-					output.append(renderContent(v.source.toString(), attributes));
-				}
-			}
+    }
 
-		}
+    private String getCodeFromOriginalFile(BodyDeclaration n, int beginLine, int endLine) {
 
-		return output.toString();
+        final String[] fieldsArray = Arrays.copyOfRange(originalSourceCode, n.getBeginLine() - 1, n.getEndLine());
 
-	}
+        String content = renderContent(extractCallouts(fieldsArray));
+        return content;
+    }
 
-	private String renderContent(String[] content) {
+    private String[] extractCallouts(String[] fieldsArray) {
+        
+        String[] contentWithoutCallouts = new String[fieldsArray.length];
+        
+        for (int i=0; i < fieldsArray.length; i++) {
+            String fieldArray = fieldsArray[i];
+            
+            if(fieldArray.matches(CALLOUT_PATTERN_LINE)) {
+                int indexEndCallout = fieldArray.lastIndexOf(">");
+                contentWithoutCallouts[i] = fieldArray.substring(0, indexEndCallout+1);
+                String callout = fieldArray.substring(fieldArray.lastIndexOf("<"), indexEndCallout+1);
+                
+                this.callouts.append(callout+" "+fieldArray.substring(indexEndCallout+1).trim()).append(IOUtils.NEW_LINE);
+            } else {
+                contentWithoutCallouts[i] = fieldsArray[i];
+            }
+        }
+        
+        return contentWithoutCallouts;
+        
+    }
+    
+    private String renderContent(String[] content) {
 
-		String output = "";
+        String output = "";
 
-		if (content.length > 0) {
-			final int initialLength = content[0].length();
-			int shiftedToInitial = content[0].trim().length();
+        if (content.length > 0) {
+            final int initialLength = content[0].length();
+            int shiftedToInitial = content[0].trim().length();
 
-			int extraChars = initialLength - shiftedToInitial;
+            int extraChars = initialLength - shiftedToInitial;
 
-			return join(content, extraChars);
+            return join(content, extraChars);
 
-		}
+        }
 
-		return output;
+        return output;
 
-	}
-
-	private String renderContent(String content, Map<String, Object> params) {
-		String renderContent = content;
-		if (!params.containsValue("javadoc")) {
-			renderContent = removeJavaDoc(renderContent);
-		}
-
-		return renderContent;
-
-	}
-
-	private String removeJavaDoc(String data) {
-		return data.replaceAll("(?:/\\*(?:[^*]|(?:\\*+[^*/]))*\\*+/)", "");
-	}
-
-	private String getCodeFromOriginalFile(BodyDeclaration n, int beginLine,
-			int endLine) {
-
-		final String[] fieldsArray = Arrays.copyOfRange(originalSourceCode,
-				n.getBeginLine() - 1, n.getEndLine());
-
-		String content = renderContent(fieldsArray);
-		return content;
-	}
+    }
 
 }
