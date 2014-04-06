@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.lordofthejars.asciidoctor</groupId>
 	<artifactId>asciidoctorfy</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.1.0</version>
     
     <name>asciidoctorfy</name>
     <description>NoSQL is a JUnit extension targeted to nosql-driven projectsAsciidoctorfy is an small java project which reads a java source file, extracts the comments between /* and / sequentially from all over the file and stores them inside an output AsciiDoc file.</description>

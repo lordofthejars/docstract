@@ -81,12 +81,26 @@ Note that in comments we are also using include macro for inserting files inside
 
 Also note that the include files will be resolved relative from place where the CLI is being run, typically from the root of the project.
 
+== Download
+
+You can grab a runnable jar from https://bintray.com/lordofthejars/generic/Asciidoctorfy/0.1.0/view/files
+
+== Usage
+
 To render previous class we can call as:
 
+....
 java -jar asciidoctorfy-<version>.jar --input=src/test/java/com/lordofthejars/asciidoctorfy/MM.java --output=README.adoc
+....
 
 And an +AsciiDoc+ file will be generated from comments blocks.
 
 There is one optional parameter called +--baseDir+. This parameter is used to set the baseDir in include macros. So for example if you set baseDir to +/home/lotj/project+, the include macro will be resolved to +include::/home/lotj/project/src/test/java/....+.
+
+== Live example
+
+You can see an example at community _Tomitribe_ examples with class: https://github.com/tomitribe/community/blob/master/mongodb-example/src/test/java/org/superbiz/nosql/mongodb/GreetingsSessionBeanTest.java and the rendered output: https://github.com/tomitribe/community/blob/master/mongodb-example/README.adoc 
+
+== Collaboration
 
 New features will be added when they are required but of course feel free to clone and improve it.
