@@ -4,6 +4,33 @@
 	<groupId>com.lordofthejars.asciidoctor</groupId>
 	<artifactId>asciidoctorfy</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+    
+    <name>asciidoctorfy</name>
+    <description>NoSQL is a JUnit extension targeted to nosql-driven projectsAsciidoctorfy is an small java project which reads a java source file, extracts the comments between /* and / sequentially from all over the file and stores them inside an output AsciiDoc file.</description>
+    <url>https://github.com/lordofthejars/asciidoctorfy</url>
+    <issueManagement>
+        <system>github</system>
+        <url>https://github.com/lordofthejars/asciidoctorfy</url>
+    </issueManagement>
+    <licenses>
+        <license>
+            <name>Apache License Version 2.0</name>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:git:git@github.com:lordofthejars/asciidoctorfy.git</connection>
+        <developerConnection>scm:git:git@github.com:lordofthejars/asciidoctorfy.git</developerConnection>
+        <url>scm:git:git@github.com:lordofthejars/asciidoctorfy.git</url>
+    </scm>
+
+    <developers>
+        <developer>
+            <id>asotobu</id>
+            <name>Alex Soto Bueno</name>
+            <email>asotobu@gmail.com</email>
+        </developer>
+    </developers>
 
 	<properties>
 		<maven.compiler.source>1.7</maven.compiler.source>
