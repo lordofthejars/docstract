@@ -11,6 +11,8 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.github.antlrjavaparser.JavaParser;
 import com.github.antlrjavaparser.ParseException;
@@ -103,6 +105,7 @@ import com.github.antlrjavaparser.api.visitor.VoidVisitor;
 public class Java7Parser {
 
     private static final String CALLOUT_PATTERN_LINE = ".*//\\s+<\\d+>.*";
+    private static final Pattern CALLOUT_NUMBER_PATTERN = Pattern.compile("<\\d+>");
 
     private StringBuilder output = new StringBuilder();
     private StringBuilder callouts = new StringBuilder();
@@ -480,7 +483,8 @@ public class Java7Parser {
     private String[] originalSourceCode = new String[0];
     private ByteArrayInputStream originalStream = null;
 
-    public ContentAndCallouts extract(InputStream is, Map<String, Object> attributes) throws ParseException, IOException {
+    public ContentAndCallouts extract(InputStream is, Map<String, Object> attributes) throws ParseException,
+            IOException {
 
         this.originalStream = copyInputStream(is);
         CompilationUnit compilationUnit = JavaParser.parse(originalStream);
@@ -522,28 +526,39 @@ public class Java7Parser {
         return content;
     }
 
-    private String[] extractCallouts(String[] fieldsArray) {
-        
-        String[] contentWithoutCallouts = new String[fieldsArray.length];
-        
-        for (int i=0; i < fieldsArray.length; i++) {
-            String fieldArray = fieldsArray[i];
-            
-            if(fieldArray.matches(CALLOUT_PATTERN_LINE)) {
-                int indexEndCallout = fieldArray.lastIndexOf(">");
-                contentWithoutCallouts[i] = fieldArray.substring(0, indexEndCallout+1);
-                String callout = fieldArray.substring(fieldArray.lastIndexOf("<"), indexEndCallout+1);
-                
-                this.callouts.append(callout+" "+fieldArray.substring(indexEndCallout+1).trim()).append(IOUtils.NEW_LINE);
+    private String[] extractCallouts(String[] lines) {
+
+        String[] contentWithoutCallouts = new String[lines.length];
+
+        for (int i = 0; i < lines.length; i++) {
+            String line = lines[i];
+
+            if (line.matches(CALLOUT_PATTERN_LINE)) {
+
+                Matcher matcher = CALLOUT_NUMBER_PATTERN.matcher(line);
+
+                if (matcher.find()) {
+
+                    int startCalloutNumber = matcher.start();
+                    int endCalloutNumber = matcher.end();
+
+                    contentWithoutCallouts[i] = line.substring(0, endCalloutNumber);
+                    String calloutNumber = line.substring(startCalloutNumber, endCalloutNumber);
+
+                    this.callouts.append(calloutNumber + " " + line.substring(endCalloutNumber).trim()).append(
+                            IOUtils.NEW_LINE);
+                } else {
+                    contentWithoutCallouts[i] = lines[i];
+                }
             } else {
-                contentWithoutCallouts[i] = fieldsArray[i];
+                contentWithoutCallouts[i] = lines[i];
             }
         }
-        
+
         return contentWithoutCallouts;
-        
+
     }
-    
+
     private String renderContent(String[] content) {
 
         String output = "";

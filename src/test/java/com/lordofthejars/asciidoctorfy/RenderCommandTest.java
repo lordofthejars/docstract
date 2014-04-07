@@ -28,7 +28,7 @@ public class RenderCommandTest {
         renderCommand.render(new File("src/test/java/com/lordofthejars/asciidoctorfy/Callouts.java"), outputFile, new File("."));
         
         String output = readFull(outputFile).trim();
-	    
+        
         assertThat(output, containsString("// <1>"));
         assertThat(output, containsString("<1> Prints Hello World"));
         
