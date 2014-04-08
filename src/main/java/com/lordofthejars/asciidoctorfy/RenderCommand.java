@@ -21,8 +21,8 @@ public class RenderCommand {
 		
 		try {
 			
-		    JavaSourceReader javaSourceReader = new JavaSourceReader(baseDir);
-			String content = javaSourceReader.generateDoc(new FileInputStream(inputSourceFile));
+		    IncludeSourceReader includeSourceReader = new IncludeSourceReader(baseDir);
+			String content = includeSourceReader.generateDoc(new FileInputStream(inputSourceFile));
 			
 			if(content != null) {
 				IOUtils.writeFull(content, new FileOutputStream(outputSourceFile));			

@@ -61,6 +61,9 @@ public class RenderCommandTest {
         
         String output = IOUtils.readFull(outputFile);
         
+       
+        assertThat(output, containsString("<1> defines the server name"));
+        assertThat(output, containsString("<!--1-->"));
         assertThat(output, containsString("<name>b</name>"));
         assertThat(output, containsString("<name>c</name>"));
         

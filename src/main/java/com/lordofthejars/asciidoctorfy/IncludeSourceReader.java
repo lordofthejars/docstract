@@ -9,8 +9,12 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -29,7 +33,7 @@ import org.xml.sax.InputSource;
 
 import com.github.antlrjavaparser.ParseException;
 
-public class JavaSourceReader {
+public class IncludeSourceReader {
 
     private static final String OPEN_BRACKET = "[";
     private static final String CLOSE_BRACKET = "]";
@@ -38,6 +42,8 @@ public class JavaSourceReader {
     private static final String COMMENT_SYMBOL = "*";
     private static final String INCLUDE_JAVA = "include::[\\w(),\\s/#]+\\.java\\[\\w*\\]";
     private static final String INCLUDE_XML = "include::[\\w/]+\\.xml\\[.*\\]";
+    private static final String XML_CALLOUT_PATTERN_LINE = ".*<!--\\s+\\d+\\s+.*-->\\s*";
+    private static final Pattern XML_CALLOUT_INDEX = Pattern.compile("<!--\\s+\\d+\\s+");
     private static final String METHOD_KEY = "method";
     private static final String METHOD_SEPARATOR = "#";
     private static final String CLASS_KEY = "class";
@@ -46,11 +52,11 @@ public class JavaSourceReader {
 
     private File baseDir = new File(".");
 
-    public JavaSourceReader() {
+    public IncludeSourceReader() {
         super();
     }
 
-    public JavaSourceReader(File baseDir) {
+    public IncludeSourceReader(File baseDir) {
         this.baseDir = baseDir;
     }
 
@@ -93,16 +99,8 @@ public class JavaSourceReader {
         
             if (isAnXmlIncludeSentence(asciidocLine)) {
             
-                String fileName = getFilenamePath(asciidocLine);
-
-                if (isIncludeWithXPath(asciidocLine)) {
-
-                    String xmlContent = executeXpathExpression(asciidocLine, fileName);
-                    appendXmlSourceCode(xmlContent);
-
-                } else {
-                    appendXmlSourceCode(IOUtils.readFull(new File(this.baseDir, fileName)));
-                }
+                resolveXmlInclude(asciidocLine);
+                
             } else {
                
                 if (isEmptyCommentLine(asciidocLine)) {
@@ -114,16 +112,59 @@ public class JavaSourceReader {
         }
     }
 
-    private void appendXmlSourceCode(String sourceCode) {
+    private void resolveXmlInclude(final String asciidocLine) throws FileNotFoundException, IOException {
+        String fileName = getFilenamePath(asciidocLine);
+
+        if (isIncludeWithXPath(asciidocLine)) {
+
+            String[] xmlContent = executeXpathExpression(asciidocLine, fileName);
+            appendXmlSourceCode(xmlContent);
+
+        } else {
+            appendXmlSourceCode(IOUtils.readFull(new FileInputStream(new File(this.baseDir, fileName))));
+        }
+    }
+
+    private void appendXmlSourceCode(String[] sourceCodeLines) {
+        
+        StringBuilder callouts = new StringBuilder();
+        
         content.append("[source, xml]").append(NEW_LINE);
         content.append("----").append(NEW_LINE);
-        content.append(sourceCode.trim()).append(NEW_LINE);
+        
+        for (String line : sourceCodeLines) {
+            if(line.matches(XML_CALLOUT_PATTERN_LINE)) {
+                
+                Matcher matcher = XML_CALLOUT_INDEX.matcher(line);
+                
+                if(matcher.find()) {
+                    
+                    int startCalloutIndex = matcher.start();
+                    int endCalloutIndex = matcher.end();
+                    
+                    String calloutNumber = line.substring(startCalloutIndex + 5, endCalloutIndex).trim();
+                    String calloutComment = line.substring(endCalloutIndex, line.lastIndexOf(">")-2).trim();
+                    
+                    callouts.append("<").append(calloutNumber).append("> ").append(calloutComment).append(NEW_LINE);
+                    
+                    content.append(line.substring(0, startCalloutIndex)).append("<!--").append(calloutNumber).append("-->").append(NEW_LINE);
+                    
+                } else {
+                    content.append(line).append(NEW_LINE);
+                }
+                
+            } else {
+                content.append(line).append(NEW_LINE);
+            }
+        }
+        
         content.append("----").append(NEW_LINE);
+        content.append(callouts.toString()).append(NEW_LINE);
     }
     
-    private String executeXpathExpression(final String asciidocLine, String fileName) throws FileNotFoundException {
+    private String[] executeXpathExpression(final String asciidocLine, String fileName) throws FileNotFoundException {
 
-        StringBuilder xmlContent = new StringBuilder();
+        List<String> lines = new ArrayList<String>();
 
         XPath xpath = XPathFactory.newInstance().newXPath();
         String expression = getXpathExpression(asciidocLine);
@@ -134,10 +175,10 @@ public class JavaSourceReader {
             NodeList nodes = (NodeList) xpath.evaluate(expression, inputSource, XPathConstants.NODESET);
 
             for (int i = 0; i < nodes.getLength(); i++) {
-                xmlContent.append(printNode(nodes.item(i))).append(NEW_LINE);
+               lines.add((printNode(nodes.item(i))));
             }
 
-            return xmlContent.toString();
+            return lines.toArray(new String[lines.size()]);
 
         } catch (XPathExpressionException e) {
             throw new IllegalArgumentException(e);
