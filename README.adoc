@@ -2,7 +2,8 @@
 
 == What is it?
 
-+Asciidoctorfy+ is an small +java+ project which reads a java source file, extracts the comments between +/**+ and +*/+ sequentially from all over the file and stores them inside an output +AsciiDoc+ file. The idea is not new in fact it is from https://github.com/javaee-samples/javaee7-samples/ developed by _Aslak Knutsen_ but instead of using +Ruby+ and inside +Awestruct+, this project is written in +java+ and it is run from CLI.
++docstract+ is an small +java+ project which reads a java source file, extracts the comments between +/**+ and +*/+ sequentially from all over the file and stores them inside an output +AsciiDoc+ file. The idea is not new in fact it is from https://github.com/javaee-samples/javaee7-samples/ developed by _Aslak Knutsen_ but instead of using +Ruby+ and inside +Awestruct+, this project is written in +java+ and it is run from CLI.
+
 
 Let me show you an example to understand what this application does:
 
