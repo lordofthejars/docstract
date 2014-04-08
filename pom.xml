@@ -2,15 +2,15 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.lordofthejars.asciidoctor</groupId>
-	<artifactId>asciidoctorfy</artifactId>
-	<version>0.1.0</version>
+	<artifactId>docstract</artifactId>
+	<version>0.2.0-SNAPSHOT</version>
     
-    <name>asciidoctorfy</name>
-    <description>NoSQL is a JUnit extension targeted to nosql-driven projectsAsciidoctorfy is an small java project which reads a java source file, extracts the comments between /* and / sequentially from all over the file and stores them inside an output AsciiDoc file.</description>
+    <name>docstract</name>
+    <description>Docstract is an small java project which reads a java source file, extracts the comments between /* and / sequentially from all over the file and stores them inside an output AsciiDoc file.</description>
     <url>https://github.com/lordofthejars/asciidoctorfy</url>
     <issueManagement>
         <system>github</system>
-        <url>https://github.com/lordofthejars/asciidoctorfy</url>
+        <url>https://github.com/lordofthejars/docstract</url>
     </issueManagement>
     <licenses>
         <license>
@@ -19,9 +19,9 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:git@github.com:lordofthejars/asciidoctorfy.git</connection>
-        <developerConnection>scm:git:git@github.com:lordofthejars/asciidoctorfy.git</developerConnection>
-        <url>scm:git:git@github.com:lordofthejars/asciidoctorfy.git</url>
+        <connection>scm:git:git@github.com:lordofthejars/docstract.git</connection>
+        <developerConnection>scm:git:git@github.com:lordofthejars/docstract.git</developerConnection>
+        <url>scm:git:git@github.com:lordofthejars/docstract.git</url>
     </scm>
 
     <developers>
