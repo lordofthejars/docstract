@@ -108,7 +108,7 @@ In +xml+ you can write callouts between +xml+ comments and the callout number be
 
 == Download
 
-You can grab a runnable jar from https://bintray.com/lordofthejars/generic/Asciidoctorfy/0.1.0/view/files
+You can grab a runnable jar from https://bintray.com/lordofthejars/generic/Docstract/0.2.0/view/files
 
 == Usage
 
