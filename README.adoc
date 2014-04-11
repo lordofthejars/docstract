@@ -128,6 +128,4 @@ You can see an example at community _Tomitribe_ examples with class: https://git
 
 == Collaboration
 
-Next steps will be adding callouts for +xml+ files and adding the possibility to use _<,>_ inside callouts.
-
 New features will be added when they are required but of course feel free to clone and improve it.
