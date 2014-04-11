@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.lordofthejars.asciidoctor</groupId>
 	<artifactId>docstract</artifactId>
-	<version>0.2.0-SNAPSHOT</version>
+	<version>0.3.0-SNAPSHOT</version>
     
     <name>docstract</name>
     <description>Docstract is an small java project which reads a java source file, extracts the comments between /* and / sequentially from all over the file and stores them inside an output AsciiDoc file.</description>
