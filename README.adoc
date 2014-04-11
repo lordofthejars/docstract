@@ -1,4 +1,4 @@
-= Asciidoctorfy
+= Docstract
 
 == What is it?
 
@@ -84,7 +84,27 @@ Also note that the include files will be resolved relative from place where the 
 
 == Callouts
 
-You can use callouts inside +java+ code and the processor will render it in the proper way.
+You can use callouts inside +java+ and +xml+ code and the processor will render it in the proper way.
+
+In +java+ you can write a callout as a single line comment with callout number between _<,>_ at start.
+
+[source, java]
+----
+public void code() {  
+    System.out.println("Hello World"); // <1> Prints Hello World
+}
+----
+
+In +xml+ you can write callouts between +xml+ comments and the callout number being the first word.
+
+[source, xml]
+----
+<servers>
+    <server>a</server> <!-- 1 defines the server name -->
+    <name>b</name>
+    <name>c</name>
+</servers>
+----
 
 == Download
 
@@ -95,7 +115,7 @@ You can grab a runnable jar from https://bintray.com/lordofthejars/generic/Ascii
 To render previous class we can call as:
 
 ....
-java -jar asciidoctorfy-<version>.jar --input=src/test/java/com/lordofthejars/asciidoctorfy/MM.java --output=README.adoc
+java -jar docstract-<version>.jar --input=src/test/java/com/lordofthejars/asciidoctorfy/MM.java --output=README.adoc
 ....
 
 And an +AsciiDoc+ file will be generated from comments blocks.
