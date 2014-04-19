@@ -115,7 +115,7 @@ You can grab a runnable jar from https://bintray.com/lordofthejars/generic/Docst
 To render previous class we can call as:
 
 ....
-java -jar docstract-<version>.jar --input=src/test/java/com/lordofthejars/asciidoctorfy/MM.java --output=README.adoc
+java -jar docstract-<version>.jar render --input=src/test/java/com/lordofthejars/asciidoctorfy/MM.java --output=README.adoc
 ....
 
 And an +AsciiDoc+ file will be generated from comments blocks.
