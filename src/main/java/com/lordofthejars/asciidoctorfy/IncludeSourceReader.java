@@ -18,8 +18,10 @@ import java.util.regex.Pattern;
 
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
@@ -252,19 +254,8 @@ public class IncludeSourceReader {
         return fileName.indexOf(CLOSE_BRACKET) - fileName.indexOf(OPEN_BRACKET) > 1;
     }
 
-    private String printNode(Node rootNode) throws TransformerException {
-
-        Transformer transformer = TransformerFactory.newInstance().newTransformer();
-        transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-        transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
-
-        StringWriter stringWriter = new StringWriter();
-        StreamResult streamResult = new StreamResult(stringWriter);
-        transformer.transform(new DOMSource(rootNode), streamResult);
-
-        return stringWriter.toString();
+    private String printNode(Node rootNode) throws XPathExpressionException, TransformerException {
+        return XmlUtils.indenting(rootNode);
     }
 
     private boolean isIncludeWithMethod(String fileName) {
