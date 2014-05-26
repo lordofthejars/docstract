@@ -69,6 +69,23 @@ public class RenderCommandTest {
         
     }
 	
+	@Test
+    public void should_render_javadoc_with_xml_namespace_files_content_as_AsciiDoc_file() throws ParseException, FileNotFoundException, IOException {
+        
+        RenderCommand renderCommand = new RenderCommand();
+        
+        File outputFile = temporaryFolder.newFile("output.adoc");
+        renderCommand.render(new File("src/test/java/com/lordofthejars/asciidoctorfy/XmlNamespace.java"), outputFile, new File("."));
+        
+        String output = IOUtils.readFull(outputFile);
+        
+        assertThat(output, containsString("<groupId>junit</groupId>"));
+        assertThat(output, containsString("<artifactId>junit</artifactId>"));
+        assertThat(output, containsString("<version>${version.junit}</version>"));
+        assertThat(output, containsString("xmlns=\"http://maven.apache.org/POM/4.0.0\""));
+        
+    }
+	
 	private String readFull(File file) throws IOException {
 		byte[] content = new byte[(int) file.length()];
 		

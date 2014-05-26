@@ -8,35 +8,24 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringWriter;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.TransformerFactoryConfigurationError;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import com.github.antlrjavaparser.ParseException;
 
 public class IncludeSourceReader {
 
+    private static final String WHITE_SPACE = " ";
+    private static final String XMLNS = "xmlns";
     private static final String OPEN_BRACKET = "[";
     private static final String CLOSE_BRACKET = "]";
     private static final String START_COMMENT = "/**";
@@ -166,31 +155,43 @@ public class IncludeSourceReader {
     
     private String[] executeXpathExpression(final String asciidocLine, String fileName) throws FileNotFoundException {
 
-        List<String> lines = new ArrayList<String>();
-
-        XPath xpath = XPathFactory.newInstance().newXPath();
-        String expression = getXpathExpression(asciidocLine);
+        String fullXpath = fullXpathExpression(asciidocLine);
+        
+        String expression = getXpathExpression(fullXpath);
+        String namespace = getNamespace(fullXpath);
+        
         InputSource inputSource = new InputSource(new FileInputStream(new File(this.baseDir, fileName)));
 
         try {
-            
-            NodeList nodes = (NodeList) xpath.evaluate(expression, inputSource, XPathConstants.NODESET);
-
-            for (int i = 0; i < nodes.getLength(); i++) {
-               lines.add((printNode(nodes.item(i))));
-            }
-
-            return lines.toArray(new String[lines.size()]);
-
-        } catch (XPathExpressionException e) {
-            throw new IllegalArgumentException(e);
-        } catch (TransformerException e) {
+            return XmlUtils.executeXPathExpression(inputSource, expression, namespace);
+        } catch (XPathExpressionException | SAXException | IOException | ParserConfigurationException
+                | TransformerException e) {
             throw new IllegalArgumentException(e);
         }
+      
     }
 
-    private String getXpathExpression(String asciidocLine) {
-        return asciidocLine.substring(asciidocLine.indexOf(OPEN_BRACKET) + 1, asciidocLine.lastIndexOf(CLOSE_BRACKET));
+    private String fullXpathExpression(String asciidocLine) {
+        return asciidocLine.substring(asciidocLine.indexOf(OPEN_BRACKET)+1, asciidocLine.lastIndexOf(CLOSE_BRACKET)).trim();
+    }
+    
+    private String getNamespace(String fullXpathExpression) {
+        
+        if(fullXpathExpression.startsWith(XMLNS)) {
+            return fullXpathExpression.substring(0, fullXpathExpression.indexOf(WHITE_SPACE)).trim();
+        }
+        
+        return null;
+        
+    }
+    
+    private String getXpathExpression(String fullXpathExpression) {
+        
+        if(fullXpathExpression.startsWith(XMLNS)) {
+            return fullXpathExpression.substring(fullXpathExpression.indexOf(WHITE_SPACE) + 1, fullXpathExpression.length()).trim();
+        }
+        
+        return fullXpathExpression.trim();
     }
 
     private boolean isEmptyCommentLine(final String asciidocLine) {
@@ -254,16 +255,12 @@ public class IncludeSourceReader {
         return fileName.indexOf(CLOSE_BRACKET) - fileName.indexOf(OPEN_BRACKET) > 1;
     }
 
-    private String printNode(Node rootNode) throws XPathExpressionException, TransformerException {
-        return XmlUtils.indenting(rootNode);
-    }
-
     private boolean isIncludeWithMethod(String fileName) {
         return fileName.contains(METHOD_SEPARATOR);
     }
 
     private String getFilenamePath(final String asciidocLine) {
-        return asciidocLine.substring(9, asciidocLine.lastIndexOf(OPEN_BRACKET));
+        return asciidocLine.substring(9, asciidocLine.indexOf(OPEN_BRACKET));
     }
 
     private boolean isAnXmlIncludeSentence(final String asciidocLine) {
