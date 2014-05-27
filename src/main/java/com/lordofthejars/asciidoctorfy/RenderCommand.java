@@ -38,5 +38,28 @@ public class RenderCommand {
 			throw new IllegalStateException(e);
 		}
 	}
+	
+	@Command
+    public String renderToConsole(@Option("input") @Required File inputSourceFile, @Option("output") @Required File outputSourceFile, @Default(".") @Option("baseDir") File baseDir) {
+        
+        try {
+            
+            IncludeSourceReader includeSourceReader = new IncludeSourceReader(baseDir);
+            String content = includeSourceReader.generateDoc(new FileInputStream(inputSourceFile));
+            
+            if(content != null) {
+                return content;         
+            } else {
+                throw new IllegalStateException("No content has been provided in file "+inputSourceFile.getAbsolutePath());
+            }
+            
+        } catch (ParseException e) {
+            throw new IllegalStateException(e);
+        } catch (FileNotFoundException e) {
+            throw new IllegalStateException(e);
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+    }
 
 }
