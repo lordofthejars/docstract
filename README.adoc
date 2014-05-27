@@ -11,7 +11,7 @@ This is a class which contains some comments to be processed.
 
 [source, java]
 ----
-package com.lordofthejars.asciidoctorfy;
+package com.lordofthejars.docstract;
 
 /**
  * 

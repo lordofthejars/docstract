@@ -1,8 +1,8 @@
-package com.lordofthejars.asciidoctorfy;
+package com.lordofthejars.docstract;
 
 /**
  * 
- * include::src/test/java/com/lordofthejars/asciidoctorfy/Callouts#code().java[]
+ * include::src/test/java/com/lordofthejars/docstract/Callouts#code().java[]
  */
 public class Callouts {
 

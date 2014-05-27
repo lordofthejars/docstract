@@ -1,4 +1,4 @@
-package com.lordofthejars.asciidoctorfy;
+package com.lordofthejars.docstract;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
@@ -14,6 +14,8 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import com.github.antlrjavaparser.ParseException;
+import com.lordofthejars.docstract.IOUtils;
+import com.lordofthejars.docstract.RenderCommand;
 
 public class RenderCommandTest {
 
@@ -28,7 +30,7 @@ public class RenderCommandTest {
         RenderCommand renderCommand = new RenderCommand();
         
         File outputFile = temporaryFolder.newFile("output.adoc");
-        renderCommand.render(new File("src/test/java/com/lordofthejars/asciidoctorfy/AutonumericalCallout.java"), outputFile, new File("."));
+        renderCommand.render(new File("src/test/java/com/lordofthejars/docstract/AutonumericalCallout.java"), outputFile, new File("."));
         
         String output = readFull(outputFile).trim();
         
@@ -41,7 +43,7 @@ public class RenderCommandTest {
 	    RenderCommand renderCommand = new RenderCommand();
         
         File outputFile = temporaryFolder.newFile("output.adoc");
-        renderCommand.render(new File("src/test/java/com/lordofthejars/asciidoctorfy/Callouts.java"), outputFile, new File("."));
+        renderCommand.render(new File("src/test/java/com/lordofthejars/docstract/Callouts.java"), outputFile, new File("."));
         
         String output = readFull(outputFile).trim();
         
@@ -56,7 +58,7 @@ public class RenderCommandTest {
 		RenderCommand renderCommand = new RenderCommand();
 		
 		File outputFile = temporaryFolder.newFile("output.adoc");
-		renderCommand.render(new File("src/test/java/com/lordofthejars/asciidoctorfy/MM.java"), outputFile, new File("."));
+		renderCommand.render(new File("src/test/java/com/lordofthejars/docstract/MM.java"), outputFile, new File("."));
 		
 		String output = readFull(outputFile).trim();
 		
@@ -73,7 +75,7 @@ public class RenderCommandTest {
         RenderCommand renderCommand = new RenderCommand();
         
         File outputFile = temporaryFolder.newFile("output.adoc");
-        renderCommand.render(new File("src/test/java/com/lordofthejars/asciidoctorfy/Xml.java"), outputFile, new File("."));
+        renderCommand.render(new File("src/test/java/com/lordofthejars/docstract/Xml.java"), outputFile, new File("."));
         
         String output = IOUtils.readFull(outputFile);
         
@@ -91,7 +93,7 @@ public class RenderCommandTest {
         RenderCommand renderCommand = new RenderCommand();
         
         File outputFile = temporaryFolder.newFile("output.adoc");
-        renderCommand.render(new File("src/test/java/com/lordofthejars/asciidoctorfy/XmlAutonumerical.java"), outputFile, new File("."));
+        renderCommand.render(new File("src/test/java/com/lordofthejars/docstract/XmlAutonumerical.java"), outputFile, new File("."));
         
         String output = IOUtils.readFull(outputFile);
         
@@ -109,7 +111,7 @@ public class RenderCommandTest {
         RenderCommand renderCommand = new RenderCommand();
         
         File outputFile = temporaryFolder.newFile("output.adoc");
-        renderCommand.render(new File("src/test/java/com/lordofthejars/asciidoctorfy/XmlNamespace.java"), outputFile, new File("."));
+        renderCommand.render(new File("src/test/java/com/lordofthejars/docstract/XmlNamespace.java"), outputFile, new File("."));
         
         String output = IOUtils.readFull(outputFile);
         

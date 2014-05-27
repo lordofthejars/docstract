@@ -1,4 +1,4 @@
-package com.lordofthejars.asciidoctorfy;
+package com.lordofthejars.docstract;
 
 /**
  * You can even include +xml+.

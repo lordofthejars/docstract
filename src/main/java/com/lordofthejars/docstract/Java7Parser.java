@@ -1,8 +1,8 @@
-package com.lordofthejars.asciidoctorfy;
+package com.lordofthejars.docstract;
 
-import static com.lordofthejars.asciidoctorfy.IOUtils.copyInputStream;
-import static com.lordofthejars.asciidoctorfy.IOUtils.join;
-import static com.lordofthejars.asciidoctorfy.IOUtils.readFull;
+import static com.lordofthejars.docstract.IOUtils.copyInputStream;
+import static com.lordofthejars.docstract.IOUtils.join;
+import static com.lordofthejars.docstract.IOUtils.readFull;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

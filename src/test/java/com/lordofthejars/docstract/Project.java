@@ -1,4 +1,4 @@
-package com.lordofthejars.asciidoctorfy;
+package com.lordofthejars.docstract;
 
 import java.net.URL;
 

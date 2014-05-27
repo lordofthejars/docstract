@@ -1,8 +1,8 @@
-package com.lordofthejars.asciidoctorfy;
+package com.lordofthejars.docstract;
 
 /**
  * 
- * include::src/test/java/com/lordofthejars/asciidoctorfy/AutonumericalCallout#code().java[]
+ * include::src/test/java/com/lordofthejars/docstract/AutonumericalCallout#code().java[]
  */
 public class AutonumericalCallout {
 

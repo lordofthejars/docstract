@@ -1,4 +1,4 @@
-package com.lordofthejars.asciidoctorfy;
+package com.lordofthejars.docstract;
 
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.junit.Assert.assertThat;
@@ -14,6 +14,8 @@ import javax.xml.xpath.XPathExpressionException;
 import org.junit.Test;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+
+import com.lordofthejars.docstract.XmlUtils;
 
 public class XmlUtilsTest {
 
