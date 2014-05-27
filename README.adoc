@@ -84,9 +84,17 @@ Also note that the include files will be resolved relative from place where the 
 
 In case of using +xpath+ with namespaces you must register the namespace. So for example given a +pom.xml+ file, if we want to retrieve all dependencies with +groupId+ _junit_:
 
-....
-include::src/test/resources/maven.xml[xmlns:mvn=http://maven.apache.org/POM/4.0.0 /mvn:project/mvn:dependencies/mvn:dependency[mvn:groupId[contains(., 'junit')]]]
-....
+[source, java]
+----
+package com.lordofthejars.docstract;
+
+/**
+ *
+ * include::src/test/resources/maven.xml[xmlns:mvn=http://maven.apache.org/POM/4.0.0 /mvn:project/mvn:dependencies/mvn:dependency[mvn:groupId[contains(., 'junit')]]]
+ *
+ *
+ */
+----
 
 Where the first part (until first white space) is the delcaration of the namespace.
 
