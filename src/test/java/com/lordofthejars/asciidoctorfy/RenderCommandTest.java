@@ -1,6 +1,7 @@
 package com.lordofthejars.asciidoctorfy;
 
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 import java.io.File;
@@ -16,8 +17,23 @@ import com.github.antlrjavaparser.ParseException;
 
 public class RenderCommandTest {
 
+    private static final String SEPARATOR = System.getProperty("line.separator");
+    
 	@Rule
 	public TemporaryFolder temporaryFolder = new TemporaryFolder();
+	
+	@Test
+    public void should_render_javadoc_content_with_autonumerical_callouts_as_AsciiDoc_file() throws IOException {
+        
+        RenderCommand renderCommand = new RenderCommand();
+        
+        File outputFile = temporaryFolder.newFile("output.adoc");
+        renderCommand.render(new File("src/test/java/com/lordofthejars/asciidoctorfy/AutonumericalCallout.java"), outputFile, new File("."));
+        
+        String output = readFull(outputFile).trim();
+        
+        assertThat(output, is("[source, java]"+SEPARATOR+"----"+SEPARATOR+"public void code() {"+SEPARATOR+"        "+SEPARATOR+"        System.out.println(\"Hello World\"); //  <1>"+SEPARATOR+"        "+SEPARATOR+"    }"+SEPARATOR+"----"+SEPARATOR+"<1> Prints Hello World"));
+    }
 	
 	@Test
 	public void should_render_javadoc_content_with_callouts_as_AsciiDoc_file() throws IOException {
@@ -58,6 +74,24 @@ public class RenderCommandTest {
         
         File outputFile = temporaryFolder.newFile("output.adoc");
         renderCommand.render(new File("src/test/java/com/lordofthejars/asciidoctorfy/Xml.java"), outputFile, new File("."));
+        
+        String output = IOUtils.readFull(outputFile);
+        
+       
+        assertThat(output, containsString("<1> defines the server name"));
+        assertThat(output, containsString("<!--1-->"));
+        assertThat(output, containsString("<name>b</name>"));
+        assertThat(output, containsString("<name>c</name>"));
+        
+    }
+	
+	@Test
+    public void should_render_javadoc_with_autonumerical_xml_files_content_as_AsciiDoc_file() throws ParseException, FileNotFoundException, IOException {
+        
+        RenderCommand renderCommand = new RenderCommand();
+        
+        File outputFile = temporaryFolder.newFile("output.adoc");
+        renderCommand.render(new File("src/test/java/com/lordofthejars/asciidoctorfy/XmlAutonumerical.java"), outputFile, new File("."));
         
         String output = IOUtils.readFull(outputFile);
         

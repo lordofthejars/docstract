@@ -104,8 +104,9 @@ import com.github.antlrjavaparser.api.visitor.VoidVisitor;
 
 public class Java7Parser {
 
-    private static final String CALLOUT_PATTERN_LINE = ".*//\\s+<\\d+>.*";
+    private static final String CALLOUT_PATTERN_LINE = ".*//\\s+<[\\d+#]>.*";
     private static final Pattern CALLOUT_NUMBER_PATTERN = Pattern.compile("<\\d+>");
+    private static final Pattern CALLOUT_AUTONUMERIC_PATTERN = Pattern.compile("<[#+]>");
 
     private StringBuilder output = new StringBuilder();
     private StringBuilder callouts = new StringBuilder();
@@ -530,6 +531,8 @@ public class Java7Parser {
 
         String[] contentWithoutCallouts = new String[lines.length];
 
+        int autonumericalCallout = 1;
+        
         for (int i = 0; i < lines.length; i++) {
             String line = lines[i];
 
@@ -548,7 +551,23 @@ public class Java7Parser {
                     this.callouts.append(calloutNumber + " " + line.substring(endCalloutNumber).trim()).append(
                             IOUtils.NEW_LINE);
                 } else {
-                    contentWithoutCallouts[i] = lines[i];
+                    matcher = CALLOUT_AUTONUMERIC_PATTERN.matcher(line);
+                    if(matcher.find()) {
+                        
+                        int startCalloutNumber = matcher.start();
+                        int endCalloutNumber = matcher.end();
+
+                        contentWithoutCallouts[i] = String.format("%s <%s>", line.substring(0, startCalloutNumber), autonumericalCallout);
+                        String calloutNumber = String.format("<%s>", autonumericalCallout);
+
+                        this.callouts.append(calloutNumber + " " + line.substring(endCalloutNumber).trim()).append(
+                                IOUtils.NEW_LINE);
+                        
+                        autonumericalCallout++;
+                        
+                    } else {
+                        contentWithoutCallouts[i] = lines[i];
+                    }
                 }
             } else {
                 contentWithoutCallouts[i] = lines[i];

@@ -33,12 +33,12 @@ public class IncludeSourceReader {
     private static final String COMMENT_SYMBOL = "*";
     private static final String INCLUDE_JAVA = "include::[\\w(),\\s/#]+\\.java\\[\\w*\\]";
     private static final String INCLUDE_XML = "include::[\\w/]+\\.xml\\[.*\\]";
-    private static final String XML_CALLOUT_PATTERN_LINE = ".*<!--\\s+\\d+\\s+.*-->\\s*";
-    private static final Pattern XML_CALLOUT_INDEX = Pattern.compile("<!--\\s+\\d+\\s+");
+    private static final String XML_CALLOUT_PATTERN_LINE = ".*<!--\\s+[\\d+#]\\s+.*-->\\s*";
+    private static final Pattern XML_CALLOUT_INDEX = Pattern.compile("<!--\\s+[\\d+#]\\s+");
     private static final String METHOD_KEY = "method";
     private static final String METHOD_SEPARATOR = "#";
     private static final String CLASS_KEY = "class";
-    
+
     private StringBuilder content = new StringBuilder();
 
     private File baseDir = new File(".");
@@ -81,19 +81,19 @@ public class IncludeSourceReader {
     }
 
     private void resolveAsciiDocLine(final String asciidocLine) throws FileNotFoundException, IOException {
-       
+
         if (isAJavaIncludeSentence(asciidocLine)) {
-        
+
             resolveJavaInclude(asciidocLine);
-        
+
         } else {
-        
+
             if (isAnXmlIncludeSentence(asciidocLine)) {
-            
+
                 resolveXmlInclude(asciidocLine);
-                
+
             } else {
-               
+
                 if (isEmptyCommentLine(asciidocLine)) {
                     content.append(NEW_LINE);
                 } else {
@@ -117,49 +117,58 @@ public class IncludeSourceReader {
     }
 
     private void appendXmlSourceCode(String[] sourceCodeLines) {
-        
+
         StringBuilder callouts = new StringBuilder();
-        
+
+        int autonumericalCallout = 1;
+
         content.append("[source, xml]").append(NEW_LINE);
         content.append("----").append(NEW_LINE);
-        
+
         for (String line : sourceCodeLines) {
-            if(line.matches(XML_CALLOUT_PATTERN_LINE)) {
-                
+            if (line.matches(XML_CALLOUT_PATTERN_LINE)) {
+
                 Matcher matcher = XML_CALLOUT_INDEX.matcher(line);
-                
-                if(matcher.find()) {
-                    
+
+                if (matcher.find()) {
+
                     int startCalloutIndex = matcher.start();
                     int endCalloutIndex = matcher.end();
-                    
+
                     String calloutNumber = line.substring(startCalloutIndex + 5, endCalloutIndex).trim();
-                    String calloutComment = line.substring(endCalloutIndex, line.lastIndexOf(">")-2).trim();
-                    
+                    String calloutComment = line.substring(endCalloutIndex, line.lastIndexOf(">") - 2).trim();
+
+                    if ("#".equals(calloutNumber)) {
+                        callouts.append("<").append(autonumericalCallout).append("> ").append(calloutComment)
+                                .append(NEW_LINE);
+                        calloutNumber = Integer.toString(autonumericalCallout);
+                        autonumericalCallout++;
+                    }
                     callouts.append("<").append(calloutNumber).append("> ").append(calloutComment).append(NEW_LINE);
-                    
-                    content.append(line.substring(0, startCalloutIndex)).append("<!--").append(calloutNumber).append("-->").append(NEW_LINE);
-                    
+
+                    content.append(line.substring(0, startCalloutIndex)).append("<!--").append(calloutNumber)
+                            .append("-->").append(NEW_LINE);
+
                 } else {
                     content.append(line).append(NEW_LINE);
                 }
-                
+
             } else {
                 content.append(line).append(NEW_LINE);
             }
         }
-        
+
         content.append("----").append(NEW_LINE);
         content.append(callouts.toString()).append(NEW_LINE);
     }
-    
+
     private String[] executeXpathExpression(final String asciidocLine, String fileName) throws FileNotFoundException {
 
         String fullXpath = fullXpathExpression(asciidocLine);
-        
+
         String expression = getXpathExpression(fullXpath);
         String namespace = getNamespace(fullXpath);
-        
+
         InputSource inputSource = new InputSource(new FileInputStream(new File(this.baseDir, fileName)));
 
         try {
@@ -168,29 +177,31 @@ public class IncludeSourceReader {
                 | TransformerException e) {
             throw new IllegalArgumentException(e);
         }
-      
+
     }
 
     private String fullXpathExpression(String asciidocLine) {
-        return asciidocLine.substring(asciidocLine.indexOf(OPEN_BRACKET)+1, asciidocLine.lastIndexOf(CLOSE_BRACKET)).trim();
+        return asciidocLine.substring(asciidocLine.indexOf(OPEN_BRACKET) + 1, asciidocLine.lastIndexOf(CLOSE_BRACKET))
+                .trim();
     }
-    
+
     private String getNamespace(String fullXpathExpression) {
-        
-        if(fullXpathExpression.startsWith(XMLNS)) {
+
+        if (fullXpathExpression.startsWith(XMLNS)) {
             return fullXpathExpression.substring(0, fullXpathExpression.indexOf(WHITE_SPACE)).trim();
         }
-        
+
         return null;
-        
+
     }
-    
+
     private String getXpathExpression(String fullXpathExpression) {
-        
-        if(fullXpathExpression.startsWith(XMLNS)) {
-            return fullXpathExpression.substring(fullXpathExpression.indexOf(WHITE_SPACE) + 1, fullXpathExpression.length()).trim();
+
+        if (fullXpathExpression.startsWith(XMLNS)) {
+            return fullXpathExpression.substring(fullXpathExpression.indexOf(WHITE_SPACE) + 1,
+                    fullXpathExpression.length()).trim();
         }
-        
+
         return fullXpathExpression.trim();
     }
 
@@ -199,7 +210,7 @@ public class IncludeSourceReader {
     }
 
     private void resolveJavaInclude(final String asciidocLine) throws FileNotFoundException, IOException {
-        
+
         String fileName = getFilenamePath(asciidocLine);
 
         if (isIncludeWithMethod(fileName)) {
@@ -210,7 +221,7 @@ public class IncludeSourceReader {
     }
 
     private void includeJavaClass(String fileName) throws FileNotFoundException, IOException {
-        
+
         Map<String, Object> attributes = new HashMap<>();
         attributes.put(CLASS_KEY, "");
 
@@ -220,17 +231,17 @@ public class IncludeSourceReader {
     }
 
     private void appendSourceCode(Map<String, Object> attributes, InputStream fileInputStream) throws IOException {
-        
+
         Java7Parser java7Parser = new Java7Parser();
         ContentAndCallouts extractedContent = java7Parser.extract(fileInputStream, attributes);
-        
+
         content.append("[source, java]").append(NEW_LINE);
         content.append("----").append(NEW_LINE);
         content.append(extractedContent.getContent().trim()).append(NEW_LINE);
         content.append("----").append(NEW_LINE);
         String callouts = extractedContent.getCallouts().trim();
-        
-        if(!"".equals(callouts)) {
+
+        if (!"".equals(callouts)) {
             content.append(callouts).append(NEW_LINE);
         }
     }
